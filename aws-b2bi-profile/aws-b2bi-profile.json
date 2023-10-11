@@ -1,0 +1,181 @@
+{
+  "typeName": "AWS::VisbyService::Profile",
+  "description": "Definition of AWS::VisbyService::Profile Resource Type",
+  "definitions": {
+    "Logging": {
+      "type": "string",
+      "enum": [
+        "ENABLED",
+        "DISABLED"
+      ]
+    },
+    "Tag": {
+      "type": "object",
+      "properties": {
+        "Key": {
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1
+        },
+        "Value": {
+          "type": "string",
+          "maxLength": 256,
+          "minLength": 0
+        }
+      },
+      "required": [
+        "Key",
+        "Value"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "BrandColor": {
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$"
+    },
+    "BusinessName": {
+      "type": "string",
+      "maxLength": 254,
+      "minLength": 1
+    },
+    "CreatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "Email": {
+      "type": "string",
+      "maxLength": 254,
+      "minLength": 5,
+      "pattern": "^[\\w\\.\\-]+@[\\w\\.\\-]+$"
+    },
+    "LogGroupName": {
+      "type": "string",
+      "maxLength": 512,
+      "minLength": 1
+    },
+    "Logging": {
+      "$ref": "#/definitions/Logging"
+    },
+    "LogoFile": {
+      "type": "string",
+      "maxLength": 131072,
+      "minLength": 0
+    },
+    "LogoRef": {
+      "type": "string",
+      "maxLength": 254,
+      "minLength": 1
+    },
+    "ModifiedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "Name": {
+      "type": "string",
+      "maxLength": 254,
+      "minLength": 1
+    },
+    "Phone": {
+      "type": "string",
+      "maxLength": 22,
+      "minLength": 7,
+      "pattern": "^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$"
+    },
+    "ProfileArn": {
+      "type": "string"
+    },
+    "ProfileId": {
+      "type": "string"
+    },
+    "SesReplyToEmail": {
+      "type": "string",
+      "maxLength": 254,
+      "minLength": 5,
+      "pattern": "^[\\w\\.\\-]+@[\\w\\.\\-]+$"
+    },
+    "SesSenderEmail": {
+      "type": "string",
+      "maxLength": 254,
+      "minLength": 5,
+      "pattern": "^[\\w\\.\\-]+@[\\w\\.\\-]+$"
+    },
+    "SesSenderName": {
+      "type": "string",
+      "maxLength": 254,
+      "minLength": 1
+    },
+    "Tags": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Tag"
+      },
+      "maxItems": 200,
+      "minItems": 0
+    }
+  },
+  "required": [
+    "BusinessName",
+    "Logging",
+    "Name",
+    "Phone"
+  ],
+  "readOnlyProperties": [
+    "/properties/CreatedAt",
+    "/properties/LogGroupName",
+    "/properties/LogoRef",
+    "/properties/ModifiedAt",
+    "/properties/ProfileArn",
+    "/properties/ProfileId"
+  ],
+  "writeOnlyProperties": [
+    "/properties/LogoFile",
+    "/properties/Tags"
+  ],
+  "createOnlyProperties": [
+    "/properties/Logging",
+    "/properties/Tags"
+  ],
+  "primaryIdentifier": [
+    "/properties/ProfileId"
+  ],
+  "handlers": {
+    "create": {
+      "permissions": [
+        "visbyservice:CreateProfile",
+        "visbyservice:TagResource"
+      ]
+    },
+    "read": {
+      "permissions": [
+        "visbyservice:GetProfile"
+      ]
+    },
+    "update": {
+      "permissions": [
+        "visbyservice:TagResource",
+        "visbyservice:UntagResource",
+        "visbyservice:UpdateProfile"
+      ]
+    },
+    "delete": {
+      "permissions": [
+        "visbyservice:DeleteProfile"
+      ]
+    },
+    "list": {
+      "permissions": [
+        "visbyservice:ListProfiles"
+      ]
+    }
+  },
+  "tagging": {
+    "cloudFormationSystemTags": true,
+    "tagOnCreate": true,
+    "tagProperty": "Tags",
+    "tagUpdatable": true,
+    "taggable": true
+  },
+  "additionalProperties": false
+}
