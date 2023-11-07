@@ -1,6 +1,6 @@
 {
-  "typeName": "AWS::VisbyService::Profile",
-  "description": "Definition of AWS::VisbyService::Profile Resource Type",
+  "typeName": "AWS::B2BI::Profile",
+  "description": "Definition of AWS::B2BI::Profile Resource Type",
   "definitions": {
     "Logging": {
       "type": "string",
@@ -31,10 +31,6 @@
     }
   },
   "properties": {
-    "BrandColor": {
-      "type": "string",
-      "pattern": "^#[0-9a-fA-F]{6}$"
-    },
     "BusinessName": {
       "type": "string",
       "maxLength": 254,
@@ -58,16 +54,6 @@
     "Logging": {
       "$ref": "#/definitions/Logging"
     },
-    "LogoFile": {
-      "type": "string",
-      "maxLength": 131072,
-      "minLength": 0
-    },
-    "LogoRef": {
-      "type": "string",
-      "maxLength": 254,
-      "minLength": 1
-    },
     "ModifiedAt": {
       "type": "string",
       "format": "date-time"
@@ -84,27 +70,15 @@
       "pattern": "^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$"
     },
     "ProfileArn": {
-      "type": "string"
+      "type": "string",
+      "maxLength": 255,
+      "minLength": 1
     },
     "ProfileId": {
-      "type": "string"
-    },
-    "SesReplyToEmail": {
       "type": "string",
-      "maxLength": 254,
-      "minLength": 5,
-      "pattern": "^[\\w\\.\\-]+@[\\w\\.\\-]+$"
-    },
-    "SesSenderEmail": {
-      "type": "string",
-      "maxLength": 254,
-      "minLength": 5,
-      "pattern": "^[\\w\\.\\-]+@[\\w\\.\\-]+$"
-    },
-    "SesSenderName": {
-      "type": "string",
-      "maxLength": 254,
-      "minLength": 1
+      "maxLength": 19,
+      "minLength": 19,
+      "pattern": "^p-([a-f0-9]{17})$"
     },
     "Tags": {
       "type": "array",
@@ -124,18 +98,12 @@
   "readOnlyProperties": [
     "/properties/CreatedAt",
     "/properties/LogGroupName",
-    "/properties/LogoRef",
     "/properties/ModifiedAt",
     "/properties/ProfileArn",
     "/properties/ProfileId"
   ],
-  "writeOnlyProperties": [
-    "/properties/LogoFile",
-    "/properties/Tags"
-  ],
   "createOnlyProperties": [
-    "/properties/Logging",
-    "/properties/Tags"
+    "/properties/Logging"
   ],
   "primaryIdentifier": [
     "/properties/ProfileId"
@@ -143,37 +111,50 @@
   "handlers": {
     "create": {
       "permissions": [
-        "visbyservice:CreateProfile",
-        "visbyservice:TagResource"
+        "b2bi:CreateProfile",
+        "b2bi:TagResource",
+        "logs:CreateLogDelivery",
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:DeleteLogDelivery",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+        "logs:DescribeResourcePolicies",
+        "logs:ListLogDeliveries",
+        "logs:PutLogEvents",
+        "logs:PutResourcePolicy"
       ]
     },
     "read": {
       "permissions": [
-        "visbyservice:GetProfile"
+        "b2bi:GetProfile",
+        "b2bi:ListTagsForResource"
       ]
     },
     "update": {
       "permissions": [
-        "visbyservice:TagResource",
-        "visbyservice:UntagResource",
-        "visbyservice:UpdateProfile"
+        "b2bi:TagResource",
+        "b2bi:UntagResource",
+        "b2bi:UpdateProfile"
       ]
     },
     "delete": {
       "permissions": [
-        "visbyservice:DeleteProfile"
+        "b2bi:DeleteProfile",
+        "logs:DeleteLogDelivery",
+        "logs:ListLogDeliveries"
       ]
     },
     "list": {
       "permissions": [
-        "visbyservice:ListProfiles"
+        "b2bi:ListProfiles"
       ]
     }
   },
   "tagging": {
     "cloudFormationSystemTags": true,
     "tagOnCreate": true,
-    "tagProperty": "Tags",
+    "tagProperty": "/properties/Tags",
     "tagUpdatable": true,
     "taggable": true
   },

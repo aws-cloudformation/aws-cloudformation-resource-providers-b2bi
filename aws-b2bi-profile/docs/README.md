@@ -1,6 +1,6 @@
 # AWS::B2BI::Profile
 
-Definition of AWS::VisbyService::Profile Resource Type
+Definition of AWS::B2BI::Profile Resource Type
 
 ## Syntax
 
@@ -12,16 +12,11 @@ To declare this entity in your AWS CloudFormation template, use the following sy
 {
     "Type" : "AWS::B2BI::Profile",
     "Properties" : {
-        "<a href="#brandcolor" title="BrandColor">BrandColor</a>" : <i>String</i>,
         "<a href="#businessname" title="BusinessName">BusinessName</a>" : <i>String</i>,
         "<a href="#email" title="Email">Email</a>" : <i>String</i>,
         "<a href="#logging" title="Logging">Logging</a>" : <i>String</i>,
-        "<a href="#logofile" title="LogoFile">LogoFile</a>" : <i>String</i>,
         "<a href="#name" title="Name">Name</a>" : <i>String</i>,
         "<a href="#phone" title="Phone">Phone</a>" : <i>String</i>,
-        "<a href="#sesreplytoemail" title="SesReplyToEmail">SesReplyToEmail</a>" : <i>String</i>,
-        "<a href="#sessenderemail" title="SesSenderEmail">SesSenderEmail</a>" : <i>String</i>,
-        "<a href="#sessendername" title="SesSenderName">SesSenderName</a>" : <i>String</i>,
         "<a href="#tags" title="Tags">Tags</a>" : <i>[ <a href="tag.md">Tag</a>, ... ]</i>
     }
 }
@@ -32,31 +27,16 @@ To declare this entity in your AWS CloudFormation template, use the following sy
 <pre>
 Type: AWS::B2BI::Profile
 Properties:
-    <a href="#brandcolor" title="BrandColor">BrandColor</a>: <i>String</i>
     <a href="#businessname" title="BusinessName">BusinessName</a>: <i>String</i>
     <a href="#email" title="Email">Email</a>: <i>String</i>
     <a href="#logging" title="Logging">Logging</a>: <i>String</i>
-    <a href="#logofile" title="LogoFile">LogoFile</a>: <i>String</i>
     <a href="#name" title="Name">Name</a>: <i>String</i>
     <a href="#phone" title="Phone">Phone</a>: <i>String</i>
-    <a href="#sesreplytoemail" title="SesReplyToEmail">SesReplyToEmail</a>: <i>String</i>
-    <a href="#sessenderemail" title="SesSenderEmail">SesSenderEmail</a>: <i>String</i>
-    <a href="#sessendername" title="SesSenderName">SesSenderName</a>: <i>String</i>
     <a href="#tags" title="Tags">Tags</a>: <i>
       - <a href="tag.md">Tag</a></i>
 </pre>
 
 ## Properties
-
-#### BrandColor
-
-_Required_: No
-
-_Type_: String
-
-_Pattern_: <code>^#[0-9a-fA-F]{6}$</code>
-
-_Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
 
 #### BusinessName
 
@@ -94,16 +74,6 @@ _Allowed Values_: <code>ENABLED</code> | <code>DISABLED</code>
 
 _Update requires_: [Replacement](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-replacement)
 
-#### LogoFile
-
-_Required_: No
-
-_Type_: String
-
-_Maximum Length_: <code>131072</code>
-
-_Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
-
 #### Name
 
 _Required_: Yes
@@ -130,53 +100,13 @@ _Pattern_: <code>^\+?([0-9 \t\-()\/]{7,})(?:\s*(?:#|x\.?|ext\.?|extension) \t*(\
 
 _Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
 
-#### SesReplyToEmail
-
-_Required_: No
-
-_Type_: String
-
-_Minimum Length_: <code>5</code>
-
-_Maximum Length_: <code>254</code>
-
-_Pattern_: <code>^[\w\.\-]+@[\w\.\-]+$</code>
-
-_Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
-
-#### SesSenderEmail
-
-_Required_: No
-
-_Type_: String
-
-_Minimum Length_: <code>5</code>
-
-_Maximum Length_: <code>254</code>
-
-_Pattern_: <code>^[\w\.\-]+@[\w\.\-]+$</code>
-
-_Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
-
-#### SesSenderName
-
-_Required_: No
-
-_Type_: String
-
-_Minimum Length_: <code>1</code>
-
-_Maximum Length_: <code>254</code>
-
-_Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
-
 #### Tags
 
 _Required_: No
 
 _Type_: List of <a href="tag.md">Tag</a>
 
-_Update requires_: [Replacement](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-replacement)
+_Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
 
 ## Return Values
 
@@ -197,10 +127,6 @@ Returns the <code>CreatedAt</code> value.
 #### LogGroupName
 
 Returns the <code>LogGroupName</code> value.
-
-#### LogoRef
-
-Returns the <code>LogoRef</code> value.
 
 #### ModifiedAt
 

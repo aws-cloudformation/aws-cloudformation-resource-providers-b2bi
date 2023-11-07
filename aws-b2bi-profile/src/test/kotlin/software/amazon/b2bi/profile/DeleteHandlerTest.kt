@@ -1,63 +1,82 @@
 package software.amazon.b2bi.profile
 
-import java.time.Duration
-import software.amazon.awssdk.core.SdkClient
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.unmockkAll
+import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle
+import software.amazon.awssdk.awscore.exception.AwsServiceException
+import software.amazon.awssdk.services.b2bi.B2BiClient
+import software.amazon.awssdk.services.b2bi.model.DeleteProfileRequest
+import software.amazon.cloudformation.exceptions.CfnGeneralServiceException
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
 import software.amazon.cloudformation.proxy.OperationStatus
 import software.amazon.cloudformation.proxy.ProgressEvent
 import software.amazon.cloudformation.proxy.ProxyClient
 import software.amazon.cloudformation.proxy.ResourceHandlerRequest
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.junit.jupiter.MockitoExtension
-import org.assertj.core.api.Assertions.assertThat
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.atLeastOnce
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
+import java.time.Duration
 
-@ExtendWith(MockitoExtension::class)
+@TestInstance(Lifecycle.PER_CLASS)
 class DeleteHandlerTest : AbstractTestBase() {
-    @Mock
     private lateinit var proxy: AmazonWebServicesClientProxy
-    @Mock
-    private lateinit var proxyClient: ProxyClient<SdkClient>
-    @Mock
-    private lateinit var sdkClient: SdkClient
+    private lateinit var proxyClient: ProxyClient<B2BiClient>
+    private val handler = DeleteHandler()
 
-    @BeforeEach
-    fun setup() {
-        proxy = AmazonWebServicesClientProxy(logger, MOCK_CREDENTIALS) { Duration.ofSeconds(600).toMillis() }
-        sdkClient = mock(SdkClient::class.java)
-        proxyClient = MOCK_PROXY(proxy, sdkClient)
+    @BeforeAll
+    fun setupOnce() {
+        proxy = AmazonWebServicesClientProxy(logger, mockCredentials) { Duration.ofSeconds(600).toMillis() }
+        proxyClient = mockProxy(proxy, mockk(relaxed = true))
     }
 
     @AfterEach
-    fun tear_down() {
-        verify(sdkClient, atLeastOnce()).serviceName()
-        verifyNoMoreInteractions(sdkClient)
+    fun reset() {
+        clearAllMocks()
+    }
+
+    @AfterAll
+    fun teardown() {
+        unmockkAll()
     }
 
     @Test
-    fun handleRequest_SimpleSuccess() {
-        val handler = DeleteHandler()
-        // val model: ResourceModel = ResourceModel.builder().build()
-        val model: ResourceModel = ResourceModel()
-        val request: ResourceHandlerRequest<ResourceModel> =
-            ResourceHandlerRequest.builder<ResourceModel>()
-                .desiredResourceState(model)
-                .build()
-        val response: ProgressEvent<ResourceModel, CallbackContext?> =
-            handler.handleRequest(proxy, request, CallbackContext(), proxyClient, logger)
-        assertThat(response).isNotNull()
-        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS)
-        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0)
-        assertThat(response.getResourceModel()).isNull()
-        assertThat(response.getResourceModels()).isNull()
-        assertThat(response.getMessage()).isNull()
-        assertThat(response.getErrorCode()).isNull()
+    fun handleRequest() {
+        val request = ResourceHandlerRequest.builder<ResourceModel>()
+            .desiredResourceState(TEST_DELETE_PROFILE_REQUEST_RESOURCE_MODEL)
+            .build()
+        val response = handler.handleRequest(proxy, request, CallbackContext(), proxyClient, logger)
+
+        assertThat(response).isNotNull
+        assertThat(response.status).isEqualTo(OperationStatus.SUCCESS)
+        assertThat(response.callbackDelaySeconds).isEqualTo(0)
+        assertThat(response.resourceModel).isNull()
+        assertThat(response.resourceModels).isNull()
+        assertThat(response.message).isNull()
+        assertThat(response.errorCode).isNull()
+    }
+
+    @Test
+    fun handleRequest_throwsException() {
+        every {
+            proxyClient.client().deleteProfile(any<DeleteProfileRequest>())
+        } throws AwsServiceException.builder().build()
+
+        val request = ResourceHandlerRequest.builder<ResourceModel>()
+            .desiredResourceState(TEST_DELETE_PROFILE_REQUEST_RESOURCE_MODEL)
+            .build()
+        Assertions.assertThatThrownBy { handler.handleRequest(request) }
+            .isInstanceOf(CfnGeneralServiceException::class.java)
+    }
+
+    private fun DeleteHandler.handleRequest(
+        request: ResourceHandlerRequest<ResourceModel>
+    ): ProgressEvent<ResourceModel, CallbackContext?> {
+        return this.handleRequest(proxy, request, CallbackContext(), proxyClient, logger)
     }
 }

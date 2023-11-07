@@ -13,11 +13,11 @@ out/
 .settings
 .project
 
-# auto-generated files
+# Auto-generated files
 target/
 
-# our logs
+# Our logs
 rpdk.log*
 
-# contains credentials
+# Contains credentials
 sam-tests/

@@ -30,13 +30,24 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                - "visbyservice:CreateProfile"
-                - "visbyservice:DeleteProfile"
-                - "visbyservice:GetProfile"
-                - "visbyservice:ListProfiles"
-                - "visbyservice:TagResource"
-                - "visbyservice:UntagResource"
-                - "visbyservice:UpdateProfile"
+                - "b2bi:CreateProfile"
+                - "b2bi:DeleteProfile"
+                - "b2bi:GetProfile"
+                - "b2bi:ListProfiles"
+                - "b2bi:ListTagsForResource"
+                - "b2bi:TagResource"
+                - "b2bi:UntagResource"
+                - "b2bi:UpdateProfile"
+                - "logs:CreateLogDelivery"
+                - "logs:CreateLogGroup"
+                - "logs:CreateLogStream"
+                - "logs:DeleteLogDelivery"
+                - "logs:DescribeLogGroups"
+                - "logs:DescribeLogStreams"
+                - "logs:DescribeResourcePolicies"
+                - "logs:ListLogDeliveries"
+                - "logs:PutLogEvents"
+                - "logs:PutResourcePolicy"
                 Resource: "*"
 Outputs:
   ExecutionRoleArn:
