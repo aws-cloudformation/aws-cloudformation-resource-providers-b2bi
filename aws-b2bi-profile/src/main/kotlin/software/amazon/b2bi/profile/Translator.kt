@@ -1,135 +1,190 @@
 package software.amazon.b2bi.profile
 
-import com.google.common.collect.Lists
-import java.util.stream.Collectors
-import java.util.stream.Stream
-import kotlin.collections.Collection
-import software.amazon.awssdk.awscore.AwsRequest
-import software.amazon.awssdk.awscore.AwsResponse
+import software.amazon.awssdk.awscore.exception.AwsServiceException
+import software.amazon.awssdk.services.b2bi.model.AccessDeniedException
+import software.amazon.awssdk.services.b2bi.model.ConflictException
+import software.amazon.awssdk.services.b2bi.model.CreateProfileRequest
+import software.amazon.awssdk.services.b2bi.model.DeleteProfileRequest
+import software.amazon.awssdk.services.b2bi.model.GetProfileRequest
+import software.amazon.awssdk.services.b2bi.model.GetProfileResponse
+import software.amazon.awssdk.services.b2bi.model.InternalServerException
+import software.amazon.awssdk.services.b2bi.model.ListProfilesRequest
+import software.amazon.awssdk.services.b2bi.model.ListProfilesResponse
+import software.amazon.awssdk.services.b2bi.model.ResourceNotFoundException
+import software.amazon.awssdk.services.b2bi.model.ServiceQuotaExceededException
+import software.amazon.awssdk.services.b2bi.model.TagResourceRequest
+import software.amazon.awssdk.services.b2bi.model.ThrottlingException
+import software.amazon.awssdk.services.b2bi.model.UntagResourceRequest
+import software.amazon.awssdk.services.b2bi.model.UpdateProfileRequest
+import software.amazon.awssdk.services.b2bi.model.ValidationException
+import software.amazon.b2bi.profile.TagHelper.toSdkTag
+import software.amazon.cloudformation.exceptions.BaseHandlerException
+import software.amazon.cloudformation.exceptions.CfnAccessDeniedException
+import software.amazon.cloudformation.exceptions.CfnAlreadyExistsException
+import software.amazon.cloudformation.exceptions.CfnGeneralServiceException
+import software.amazon.cloudformation.exceptions.CfnInvalidRequestException
+import software.amazon.cloudformation.exceptions.CfnNotFoundException
+import software.amazon.cloudformation.exceptions.CfnServiceInternalErrorException
+import software.amazon.cloudformation.exceptions.CfnServiceLimitExceededException
+import software.amazon.cloudformation.exceptions.CfnThrottlingException
 
 /**
  * This class is a centralized placeholder for
  * - api request construction
  * - object translation to/from aws sdk
  * - resource model construction for read/list handlers
+ * - exception mapping between model and CloudFormation
  */
 object Translator {
     /**
      * Request to create a resource
      * @param model resource model
-     * @return awsRequest the aws service request to create a resource
+     * @return createProfileRequest the aws service request to create a resource
      */
-    fun translateToCreateRequest(model: ResourceModel?): AwsRequest? {
-        // TODO: construct a request
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L39-L43
-        return null
+    fun translateToCreateRequest(model: ResourceModel): CreateProfileRequest {
+        return CreateProfileRequest.builder()
+            .name(model.name)
+            .email(model.email)
+            .phone(model.phone)
+            .businessName(model.businessName)
+            .logging(model.logging)
+            .tags(model.tags.map { it.toSdkTag() })
+            .build()
     }
 
     /**
      * Request to read a resource
      * @param model resource model
-     * @return awsRequest the aws service request to describe a resource
+     * @return getProfileRequest the aws service request to describe a resource
      */
-    fun translateToReadRequest(model: ResourceModel?): AwsRequest? {
-        // TODO: construct a request
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L20-L24
-        return null
+    fun translateToReadRequest(model: ResourceModel): GetProfileRequest {
+        return GetProfileRequest.builder()
+            .profileId(model.profileId)
+            .build()
     }
 
     /**
      * Translates resource object from sdk into a resource model
-     * @param awsResponse the aws service describe resource response
+     * @param response the aws service describe resource response
      * @return model resource model
      */
-    fun translateFromReadResponse(awsResponse: AwsResponse?): ResourceModel {
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L58-L73
-        return ResourceModel()
-            // ResourceModel.builder() //.someProperty(response.property())
-            // .build()
+    fun translateFromReadResponse(response: GetProfileResponse): ResourceModel {
+        return ResourceModel.builder()
+            .profileId(response.profileId().ifEmpty { null })
+            .profileArn(response.profileArn().ifEmpty { null })
+            .name(response.name().ifEmpty { null })
+            .email(response.email().ifEmpty { null })
+            .phone(response.phone().ifEmpty { null })
+            .businessName(response.businessName().ifEmpty { null })
+            .logging(response.loggingAsString().ifEmpty { null })
+            .logGroupName(response.logGroupName().ifEmpty { null })
+            .createdAt(response.createdAt().toString().ifEmpty { null })
+            .modifiedAt(response.modifiedAt().toString().ifEmpty { null })
+            .build()
     }
 
     /**
      * Request to delete a resource
      * @param model resource model
-     * @return awsRequest the aws service request to delete a resource
+     * @return deleteProfileRequest the aws service request to delete a resource
      */
-    fun translateToDeleteRequest(model: ResourceModel?): AwsRequest? {
-        // TODO: construct a request
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L33-L37
-        return null
+    fun translateToDeleteRequest(model: ResourceModel): DeleteProfileRequest {
+        return DeleteProfileRequest.builder()
+            .profileId(model.profileId)
+            .build()
     }
 
     /**
      * Request to update properties of a previously created resource
      * @param model resource model
-     * @return awsRequest the aws service request to modify a resource
+     * @return updateProfileRequest the aws service request to modify a resource
      */
-    fun translateToFirstUpdateRequest(model: ResourceModel?): AwsRequest? {
-        // TODO: construct a request
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L45-L50
-        return null
-    }
-
-    /**
-     * Request to update some other properties that could not be provisioned through first update request
-     * @param model resource model
-     * @return awsRequest the aws service request to modify a resource
-     */
-    fun translateToSecondUpdateRequest(model: ResourceModel?): AwsRequest? {
-        // TODO: construct a request
-        return null
+    fun translateToUpdateRequest(model: ResourceModel): UpdateProfileRequest {
+        return UpdateProfileRequest.builder()
+            .profileId(model.profileId)
+            .name(model.name)
+            .email(model.email)
+            .phone(model.phone)
+            .businessName(model.businessName)
+            .build()
     }
 
     /**
      * Request to list resources
      * @param nextToken token passed to the aws service list resources request
-     * @return awsRequest the aws service request to list resources within aws account
+     * @return listProfileRequest the aws service request to list resources within aws account
      */
-    fun translateToListRequest(nextToken: String?): AwsRequest? {
-        // TODO: construct a request
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L26-L31
-        return null
+    fun translateToListRequest(nextToken: String?): ListProfilesRequest {
+        return ListProfilesRequest.builder()
+            .apply {
+                nextToken?.let { nextToken(it) }
+            }
+            .build()
     }
 
     /**
      * Translates resource objects from sdk into a resource model (primary identifier only)
-     * @param awsResponse the aws service describe resource response
+     * @param response the profile list resource response
      * @return list of resource models
      */
-    fun translateFromListRequest(awsResponse: AwsResponse?): List<ResourceModel> {
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L75-L82
-        return streamOfOrEmpty(Lists.newArrayList<AwsResponse>())
-            .map { resource ->
-                ResourceModel()
-                // ResourceModel.builder() // include only primary identifier
-                //     .build()
-            }
-            .collect(Collectors.toList())
-    }
-
-    private fun <T> streamOfOrEmpty(collection: Collection<T>?): Stream<T> {
-        return collection?.stream() ?: Stream.empty()
-    }
-
-    /**
-     * Request to add tags to a resource
-     * @param model resource model
-     * @return awsRequest the aws service request to create a resource
-     */
-    fun tagResourceRequest(model: ResourceModel, addedTags: Map<String, String>): AwsRequest? {
-        // TODO: construct a request
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L39-L43
-        return null
+    fun translateFromListResponse(response: ListProfilesResponse): List<ResourceModel> {
+        return response.profiles().map {
+            ResourceModel.builder()
+                .profileId(it.profileId())
+                .name(it.name())
+                .email(it.email())
+                .phone(it.phone())
+                .businessName(it.businessName())
+                .logging(it.loggingAsString())
+                .logGroupName(it.logGroupName())
+                .createdAt(it.createdAt().toString())
+                .modifiedAt(it.modifiedAt().toString())
+                .build()
+        }
     }
 
     /**
      * Request to add tags to a resource
      * @param model resource model
-     * @return awsRequest the aws service request to create a resource
+     * @param addedTags tags to add
+     * @return tagResourceRequest the aws service request to create a resource
      */
-    fun untagResourceRequest(model: ResourceModel?, removedTags: Set<String?>?): AwsRequest? {
-        // TODO: construct a request
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L39-L43
-        return null
+    fun translateToTagResourceRequest(model: ResourceModel, addedTags: Map<String, String>): TagResourceRequest {
+        return TagResourceRequest.builder()
+            .resourceARN(model.profileArn)
+            .tags(TagHelper.convertToList(addedTags).map { it.toSdkTag() })
+            .build()
+    }
+
+    /**
+     * Request to add tags to a resource
+     * @param model resource model
+     * @param removedTags tags to remove
+     * @return untagResourceRequest the aws service request to create a resource
+     */
+    fun translateToUntagResourceRequest(model: ResourceModel, removedTags: Set<String>): UntagResourceRequest {
+        return UntagResourceRequest.builder()
+            .resourceARN(model.profileArn)
+            .tagKeys(removedTags)
+            .build()
+    }
+
+    /**
+     * Throws a CloudFormation exception for the corresponding B2BI exception
+     *
+     * While the handler contract states that the handler must always return a progress event,
+     * you may throw any instance of BaseHandlerException, as the wrapper map it to a progress event.
+     * Each BaseHandlerException maps to a specific error code, and you should map service exceptions as closely as
+     * possible to more specific error codes
+     */
+    fun AwsServiceException.toCfnException(): BaseHandlerException = when (this) {
+        is AccessDeniedException -> CfnAccessDeniedException(this)
+        is ConflictException -> CfnAlreadyExistsException(this)
+        is InternalServerException -> CfnServiceInternalErrorException(this)
+        is ResourceNotFoundException -> CfnNotFoundException(this)
+        is ServiceQuotaExceededException -> CfnServiceLimitExceededException(this)
+        is ThrottlingException -> CfnThrottlingException(this)
+        is ValidationException -> CfnInvalidRequestException(this)
+        else -> CfnGeneralServiceException(this)
     }
 }

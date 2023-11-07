@@ -1,36 +1,28 @@
 package software.amazon.b2bi.profile
-// TODO: Critical! Please replace the CloudFormation Tag model below with your service's own SDK Tag model
-import java.util.Collections
-import java.util.HashMap
-import java.util.HashSet
-import java.util.Objects
-import java.util.stream.Collectors
-import com.google.common.collect.Sets
-import org.apache.commons.collections.CollectionUtils
-import org.apache.commons.collections.MapUtils
-import org.apache.commons.lang3.ObjectUtils
-import software.amazon.awssdk.awscore.AwsResponse
-import software.amazon.awssdk.core.SdkClient
-import software.amazon.awssdk.services.cloudformation.model.Tag
+
+import software.amazon.awssdk.services.b2bi.B2BiClient
+import software.amazon.awssdk.services.b2bi.model.ListTagsForResourceRequest
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
 import software.amazon.cloudformation.proxy.Logger
 import software.amazon.cloudformation.proxy.ProgressEvent
 import software.amazon.cloudformation.proxy.ProxyClient
 import software.amazon.cloudformation.proxy.ResourceHandlerRequest
+import software.amazon.awssdk.services.b2bi.model.Tag as SdkTag
+import software.amazon.b2bi.profile.Tag as ResourceTag
 
-class TagHelper {
+object TagHelper {
+    private const val TAG_OPERATION = "AWS-B2BI-Profile::TagResource"
+    private const val UNTAG_OPERATION = "AWS-B2BI-Profile::UntagResource"
+
     /**
      * shouldUpdateTags
      *
      * Determines whether user defined tags have been changed during update.
      */
-    fun shouldUpdateTags(
-        resourceModel: ResourceModel?,
-        handlerRequest: ResourceHandlerRequest<ResourceModel?>
-    ): Boolean {
+    fun shouldUpdateTags(handlerRequest: ResourceHandlerRequest<ResourceModel>): Boolean {
         val previousTags = getPreviouslyAttachedTags(handlerRequest)
         val desiredTags = getNewDesiredTags(handlerRequest)
-        return ObjectUtils.notEqual(previousTags, desiredTags)
+        return previousTags != desiredTags
     }
 
     /**
@@ -45,22 +37,12 @@ class TagHelper {
      * System tags are an optional feature. Merge them to your tags if you have enabled them for your resource.
      * System tags can change on resource update if the resource is imported to the stack.
      */
-    fun getPreviouslyAttachedTags(handlerRequest: ResourceHandlerRequest<ResourceModel?>): Map<String, String> {
-        val previousTags = mutableMapOf<String, String>()
-
-        // TODO: get previous system tags if your service supports CloudFormation system tags
-        // if (handlerRequest.getPreviousSystemTags() != null) {
-        //     previousTags.putAll(handlerRequest.getPreviousSystemTags());
-        // }
-
-        // get previous stack level tags from handlerRequest
-        if (handlerRequest.getPreviousResourceTags() != null) {
-            previousTags.putAll(handlerRequest.getPreviousResourceTags())
-        }
-
-        // TODO: get resource level tags from previous resource state based on your tag property name
-        // TODO: previousTags.putAll(handlerRequest.getPreviousResourceState().getTags()); // if tags are not null
-        return previousTags
+    fun getPreviouslyAttachedTags(handlerRequest: ResourceHandlerRequest<ResourceModel>): Map<String, String> {
+        return getTags(
+            handlerRequest.previousSystemTags,
+            handlerRequest.previousResourceTags,
+            convertToMap(handlerRequest.previousResourceState.tags)
+        )
     }
 
     /**
@@ -75,22 +57,19 @@ class TagHelper {
      * System tags are an optional feature. Merge them to your tags if you have enabled them for your resource.
      * System tags can change on resource update if the resource is imported to the stack.
      */
-    fun getNewDesiredTags(handlerRequest: ResourceHandlerRequest<ResourceModel?>): Map<String, String> {
-        val desiredTags = mutableMapOf<String, String>()
+    fun getNewDesiredTags(handlerRequest: ResourceHandlerRequest<ResourceModel>): Map<String, String> {
+        return getTags(
+            handlerRequest.systemTags,
+            handlerRequest.desiredResourceTags,
+            convertToMap(handlerRequest.desiredResourceState.tags)
+        )
+    }
 
-        // TODO: merge system tags with desired resource tags if your service supports CloudFormation system tags
-        // if (handlerRequest.getSystemTags() != null) {
-        //     desiredTags.putAll(handlerRequest.getSystemTags());
-        // }
-
-        // get desired stack level tags from handlerRequest
-        if (handlerRequest.getDesiredResourceTags() != null) {
-            desiredTags.putAll(handlerRequest.getDesiredResourceTags())
-        }
-
-        // TODO: get resource level tags from resource model based on your tag property name
-        // TODO: desiredTags.putAll(convertToMap(handlerRequest.getDesiredResourceState().getTags())); // if tags are not null
-        return desiredTags
+    private fun getTags(vararg tags: Map<String, String>?): Map<String, String> {
+        return tags
+            .filterNotNull()
+            .flatMap { it.entries }
+            .associate { it.key to it.value }
     }
 
     /**
@@ -98,12 +77,9 @@ class TagHelper {
      *
      * Determines the tags the customer desired to define or redefine.
      */
-    fun generateTagsToAdd(
-        previousTags: Map<String, String>,
-        desiredTags: Map<String, String>
-    ): Map<String, String> {
+    fun generateTagsToAdd(previousTags: Map<String, String>, desiredTags: Map<String, String>): Map<String, String> {
         return desiredTags.entries
-            .filter { e -> !previousTags.containsKey(e.key) || previousTags[e.key] != e.value }
+            .filter { !previousTags.containsKey(it.key) || previousTags[it.key] != it.value }
             .associate { it.key to it.value }
     }
 
@@ -114,27 +90,9 @@ class TagHelper {
      */
     fun generateTagsToRemove(previousTags: Map<String, String>, desiredTags: Map<String, String>): Set<String> {
         val desiredTagNames = desiredTags.keys
-        return previousTags.keys.stream()
+        return previousTags.keys
             .filter { tagName -> !desiredTagNames.contains(tagName) }
-            .collect(Collectors.toSet())
-    }
-
-    /**
-     * generateTagsToAdd
-     *
-     * Determines the tags the customer desired to define or redefine.
-     */
-    fun generateTagsToAdd(previousTags: Set<Tag>, desiredTags: Set<Tag>): Set<Tag> {
-        return Sets.difference(HashSet(desiredTags), HashSet(previousTags))
-    }
-
-    /**
-     * getTagsToRemove
-     *
-     * Determines the tags the customer desired to remove from the function.
-     */
-    fun generateTagsToRemove(previousTags: Set<Tag>, desiredTags: Set<Tag>): Set<Tag> {
-        return Sets.difference(HashSet(previousTags), HashSet(desiredTags))
+            .toSet()
     }
 
     /**
@@ -142,23 +100,21 @@ class TagHelper {
      *
      * Calls the service:TagResource API.
      */
-    private fun tagResource(
+    fun tagResource(
         proxy: AmazonWebServicesClientProxy,
-        serviceClient: ProxyClient<SdkClient>,
+        proxyClient: ProxyClient<B2BiClient>,
         resourceModel: ResourceModel,
-        handlerRequest: ResourceHandlerRequest<ResourceModel>,
-        callbackContext: CallbackContext,
+        callbackContext: CallbackContext?,
         addedTags: Map<String, String>,
         logger: Logger
-    ): ProgressEvent<ResourceModel, CallbackContext> {
-        // TODO: add log for adding tags to resources during update
-        // e.g. logger.log(String.format("[UPDATE][IN PROGRESS] Going to add tags for ... resource: %s with AccountId: %s",
-        // resourceModel.getResourceName(), handlerRequest.getAwsAccountId()));
-
-        // TODO: change untagResource in the method to your service API according to your SDK
-        return proxy.initiate("AWS-B2BI-Profile::TagOps", serviceClient, resourceModel, callbackContext)
-            .translateToServiceRequest { model -> Translator.tagResourceRequest(model, addedTags) }
-            .makeServiceCall { request, client -> null as AwsResponse? }
+    ): ProgressEvent<ResourceModel, CallbackContext?> {
+        return proxy.initiate(TAG_OPERATION, proxyClient, resourceModel, callbackContext)
+            .translateToServiceRequest { model -> Translator.translateToTagResourceRequest(model, addedTags) }
+            .makeServiceCall { request, client ->
+                val response = proxy.injectCredentialsAndInvokeV2(request, client.client()::tagResource)
+                logger.log("Successfully tagged ${ResourceModel.TYPE_NAME} ${resourceModel.profileId}")
+                response
+            }
             .progress()
     }
 
@@ -167,74 +123,100 @@ class TagHelper {
      *
      * Calls the service:UntagResource API.
      */
-    private fun untagResource(
+    fun untagResource(
         proxy: AmazonWebServicesClientProxy,
-        serviceClient: ProxyClient<SdkClient>,
+        proxyClient: ProxyClient<B2BiClient>,
         resourceModel: ResourceModel,
-        handlerRequest: ResourceHandlerRequest<ResourceModel>,
-        callbackContext: CallbackContext,
+        callbackContext: CallbackContext?,
         removedTags: Set<String>,
         logger: Logger
-    ): ProgressEvent<ResourceModel, CallbackContext> {
-        // TODO: add log for removing tags from resources during update
-        // e.g. logger.log(String.format("[UPDATE][IN PROGRESS] Going to remove tags for ... resource: %s with AccountId: %s",
-        // resourceModel.getResourceName(), handlerRequest.getAwsAccountId()));
-
-        // TODO: change untagResource in the method to your service API according to your SDK
-        return proxy.initiate("AWS-B2BI-Profile::TagOps", serviceClient, resourceModel, callbackContext)
-            .translateToServiceRequest { model -> Translator.untagResourceRequest(model, removedTags) }
-            .makeServiceCall { request, client -> null as AwsResponse? }
+    ): ProgressEvent<ResourceModel, CallbackContext?> {
+        return proxy.initiate(UNTAG_OPERATION, proxyClient, resourceModel, callbackContext)
+            .translateToServiceRequest { model -> Translator.translateToUntagResourceRequest(model, removedTags) }
+            .makeServiceCall { request, client ->
+                val response = proxy.injectCredentialsAndInvokeV2(request, client.client()::untagResource)
+                logger.log("Successfully untagged ${ResourceModel.TYPE_NAME} ${resourceModel.profileId}")
+                response
+            }
             .progress()
     }
 
-    companion object {
-        /**
-         * convertToMap
-         *
-         * Converts a collection of Tag objects to a tag-name -> tag-value map.
-         *
-         * Note: Tag objects with null tag values will not be included in the output
-         * map.
-         *
-         * @param tags Collection of tags to convert
-         * @return Converted Map of tags
-         */
-        fun convertToMap(tags: Collection<Tag>): Map<String, String> {
-            if (tags.isEmpty()) {
-                return Collections.emptyMap()
-            }
-            return tags.stream()
-                .filter { it.value() != null }
-                .collect(Collectors.toMap(
-                    Tag::key,
-                    Tag::value,
-                    { oldValue, newValue -> newValue }
-                ))
-        }
+    /**
+     * List tags for resource
+     *
+     * Calls the service:ListTagsForResource API.
+     */
+    fun listTagsForResource(
+        resourceArn: String,
+        proxyClient: ProxyClient<B2BiClient>
+    ): List<ResourceTag> {
+        val request = ListTagsForResourceRequest.builder()
+            .resourceARN(resourceArn)
+            .build()
+        val response = proxyClient.injectCredentialsAndInvokeV2(request, proxyClient.client()::listTagsForResource)
+        return response.tags().map { it.toResourceTag() }
+    }
 
-        /**
-         * convertToSet
-         *
-         * Converts a tag map to a set of Tag objects.
-         *
-         * Note: Like convertToMap, convertToSet filters out value-less tag entries.
-         *
-         * @param tagMap Map of tags to convert
-         * @return Set of Tag objects
-         */
-        fun convertToSet(tagMap: Map<String, String?>): Set<Tag> {
-            if (tagMap.isEmpty()) {
-                return Collections.emptySet()
-            }
-            return tagMap.entries.stream()
-                .filter { it.value != null }
-                .map { tag ->
-                    Tag.builder()
-                        .key(tag.key)
-                        .value(tag.value)
-                        .build()
-                }
-                .collect(Collectors.toSet())
+    /**
+     * convertToMap
+     *
+     * Converts a collection of ResourceTag objects to a tag-name -> tag-value map.
+     *
+     * @param tags Collection of tags to convert
+     * @return Converted Map of tags
+     */
+    fun convertToMap(tags: List<ResourceTag>?): Map<String, String> {
+        if (tags.isNullOrEmpty()) {
+            return emptyMap()
         }
+        return tags.associate { it.key to it.value }
+    }
+
+    /**
+     * convertToSet
+     *
+     * Converts a tag map to a set of ResourceTag objects.
+     *
+     * @param tagMap Map of tags to convert
+     * @return Set of ResourceTag objects
+     */
+    fun convertToSet(tagMap: Map<String, String>): Set<ResourceTag> {
+        if (tagMap.isEmpty()) {
+            return emptySet()
+        }
+        return tagMap.map {
+            ResourceTag.builder()
+                .key(it.key)
+                .value(it.value)
+                .build()
+        }.toSet()
+    }
+
+    /**
+     * convertToList
+     *
+     * Converts a tag map to a list of ResourceTag objects.
+     *
+     * @param tagMap Map of tags to convert
+     * @return List of ResourceTag objects
+     */
+    fun convertToList(tagMap: Map<String, String>): List<ResourceTag> {
+        if (tagMap.isEmpty()) {
+            return emptyList()
+        }
+        return tagMap.map {
+            ResourceTag.builder()
+                .key(it.key)
+                .value(it.value)
+                .build()
+        }
+    }
+
+    fun ResourceTag.toSdkTag(): SdkTag {
+        return SdkTag.builder().key(this.key).value(this.value).build()
+    }
+
+    fun SdkTag.toResourceTag(): ResourceTag {
+        return ResourceTag.builder().key(this.key()).value(this.value()).build()
     }
 }
