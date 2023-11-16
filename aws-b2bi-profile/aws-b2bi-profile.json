@@ -76,9 +76,9 @@
     },
     "ProfileId": {
       "type": "string",
-      "maxLength": 19,
-      "minLength": 19,
-      "pattern": "^p-([a-f0-9]{17})$"
+      "maxLength": 64,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_-]+$"
     },
     "Tags": {
       "type": "array",

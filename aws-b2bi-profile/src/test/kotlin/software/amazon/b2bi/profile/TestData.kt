@@ -16,7 +16,7 @@ const val TEST_LOG_GROUP_NAME = "Test log group name"
 const val TEST_NAME = "Test name"
 const val TEST_PHONE = "1234567890"
 const val TEST_PROFILE_ARN = "Test profile ARN"
-const val TEST_PROFILE_ID = "p-12345678901234567"
+const val TEST_PROFILE_ID = "11111111"
 
 val TEST_INSTANT = Instant.now()
 
