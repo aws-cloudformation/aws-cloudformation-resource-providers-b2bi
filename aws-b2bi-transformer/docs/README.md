@@ -15,6 +15,7 @@ To declare this entity in your AWS CloudFormation template, use the following sy
         "<a href="#editype" title="EdiType">EdiType</a>" : <i><a href="editype.md">EdiType</a></i>,
         "<a href="#fileformat" title="FileFormat">FileFormat</a>" : <i>String</i>,
         "<a href="#mappingtemplate" title="MappingTemplate">MappingTemplate</a>" : <i>String</i>,
+        "<a href="#modifiedat" title="ModifiedAt">ModifiedAt</a>" : <i>String</i>,
         "<a href="#name" title="Name">Name</a>" : <i>String</i>,
         "<a href="#sampledocument" title="SampleDocument">SampleDocument</a>" : <i>String</i>,
         "<a href="#status" title="Status">Status</a>" : <i>String</i>,
@@ -31,6 +32,7 @@ Properties:
     <a href="#editype" title="EdiType">EdiType</a>: <i><a href="editype.md">EdiType</a></i>
     <a href="#fileformat" title="FileFormat">FileFormat</a>: <i>String</i>
     <a href="#mappingtemplate" title="MappingTemplate">MappingTemplate</a>: <i>String</i>
+    <a href="#modifiedat" title="ModifiedAt">ModifiedAt</a>: <i>String</i>
     <a href="#name" title="Name">Name</a>: <i>String</i>
     <a href="#sampledocument" title="SampleDocument">SampleDocument</a>: <i>String</i>
     <a href="#status" title="Status">Status</a>: <i>String</i>
@@ -65,6 +67,14 @@ _Required_: Yes
 _Type_: String
 
 _Maximum Length_: <code>350000</code>
+
+_Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
+
+#### ModifiedAt
+
+_Required_: No
+
+_Type_: String
 
 _Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
 
@@ -123,10 +133,6 @@ For more information about using the `Fn::GetAtt` intrinsic function, see [Fn::G
 #### CreatedAt
 
 Returns the <code>CreatedAt</code> value.
-
-#### ModifiedAt
-
-Returns the <code>ModifiedAt</code> value.
 
 #### TransformerArn
 
