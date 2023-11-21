@@ -53,8 +53,7 @@ class CreateHandler : BaseHandlerStd() {
             profileId = response.profileId()
             profileArn = response.profileArn()
             logGroupName = response.logGroupName()
-            createdAt = response.modifiedAt().toString()
-            modifiedAt = response.modifiedAt().toString()
+            createdAt = response.createdAt().toString()
         }
         logger.log("Successfully created ${ResourceModel.TYPE_NAME} ${resourceModel.profileId}")
         return response

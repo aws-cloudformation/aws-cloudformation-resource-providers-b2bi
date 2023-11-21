@@ -132,8 +132,6 @@ object Translator {
             ResourceModel.builder()
                 .profileId(it.profileId())
                 .name(it.name())
-                .email(it.email())
-                .phone(it.phone())
                 .businessName(it.businessName())
                 .logging(it.loggingAsString())
                 .logGroupName(it.logGroupName())
