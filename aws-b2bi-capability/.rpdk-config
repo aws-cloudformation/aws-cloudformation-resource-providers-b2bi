@@ -1,0 +1,29 @@
+{
+    "artifact_type": "RESOURCE",
+    "typeName": "AWS::B2Bi::Capability",
+    "language": "java",
+    "runtime": "java8",
+    "entrypoint": "software.amazon.b2bi.capability.HandlerWrapper::handleRequest",
+    "testEntrypoint": "software.amazon.b2bi.capability.HandlerWrapper::testEntrypoint",
+    "settings": {
+        "version": false,
+        "subparser_name": null,
+        "verbose": 0,
+        "force": false,
+        "type_name": null,
+        "artifact_type": null,
+        "endpoint_url": null,
+        "region": null,
+        "target_schemas": [],
+        "profile": null,
+        "namespace": [
+            "software",
+            "amazon",
+            "b2bi",
+            "capability"
+        ],
+        "codegen_template_path": "guided_aws",
+        "protocolVersion": "2.0.0"
+    },
+    "executableEntrypoint": "software.amazon.b2bi.capability.HandlerWrapperExecutable"
+}
