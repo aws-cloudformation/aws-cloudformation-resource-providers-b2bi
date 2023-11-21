@@ -105,12 +105,7 @@ _Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormati
 _Required_: No
 
 _Type_: List of <a href="tag.md">Tag</a>
-
-<<<<<<< HEAD
 _Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
-=======
-_Update requires_: [Replacement](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-replacement)
->>>>>>> 25cbccd (Initializes transformer resource, adds transformers smithy, and adds local b2bi sdk dependency, converts files to kotlin)
 
 ## Return Values
 
