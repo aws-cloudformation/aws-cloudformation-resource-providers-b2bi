@@ -34,9 +34,9 @@ Resources:
                 - "b2bi:DeleteTransformer"
                 - "b2bi:GetTransformer"
                 - "b2bi:ListTransformers"
+                - "b2bi:TagResource"
+                - "b2bi:UntagResource"
                 - "b2bi:UpdateTransformer"
-                - "visbyservice:TagResource"
-                - "visbyservice:UntagResource"
                 Resource: "*"
 Outputs:
   ExecutionRoleArn:

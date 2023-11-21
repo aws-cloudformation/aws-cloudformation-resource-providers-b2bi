@@ -170,12 +170,6 @@
     "/properties/TransformerArn",
     "/properties/TransformerId"
   ],
-  "writeOnlyProperties": [
-    "/properties/Tags"
-  ],
-  "createOnlyProperties": [
-    "/properties/Tags"
-  ],
   "primaryIdentifier": [
     "/properties/TransformerId"
   ],
@@ -183,7 +177,7 @@
     "create": {
       "permissions": [
         "b2bi:CreateTransformer",
-        "visbyservice:TagResource"
+        "b2bi:TagResource"
       ]
     },
     "read": {
@@ -193,9 +187,9 @@
     },
     "update": {
       "permissions": [
-        "b2bi:UpdateTransformer",
-        "visbyservice:TagResource",
-        "visbyservice:UntagResource"
+        "b2bi:TagResource",
+        "b2bi:UntagResource",
+        "b2bi:UpdateTransformer"
       ]
     },
     "delete": {
