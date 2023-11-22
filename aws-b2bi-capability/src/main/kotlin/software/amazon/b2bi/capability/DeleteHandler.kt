@@ -38,7 +38,7 @@ class DeleteHandler : BaseHandlerStd() {
                 // and instead returns a 200 even though a resource already deleted, you must first check if the resource exists here
                 // NOTE: If your service API throws 'ResourceNotFoundException' for delete requests this method is not necessary
                 proxy!!.initiate(
-                    "AWS-B2Bi-Capability::Delete::PreDeletionCheck",
+                    "AWS-B2BI-Capability::Delete::PreDeletionCheck",
                     proxyClient,
                     progress.resourceModel,
                     progress.callbackContext
@@ -64,7 +64,7 @@ class DeleteHandler : BaseHandlerStd() {
                 // Implement client invocation of the delete request through the proxyClient, which is already initialised with
                 // caller credentials, correct region and retry settings
                 proxy!!.initiate(
-                    "AWS-B2Bi-Capability::Delete",
+                    "AWS-B2BI-Capability::Delete",
                     proxyClient,
                     progress.resourceModel,
                     progress.callbackContext

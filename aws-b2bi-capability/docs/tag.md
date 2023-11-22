@@ -1,4 +1,4 @@
-# AWS::B2Bi::Capability Tag
+# AWS::B2BI::Capability Tag
 
 ## Syntax
 

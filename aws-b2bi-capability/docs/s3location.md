@@ -1,4 +1,4 @@
-# AWS::B2Bi::Capability S3Location
+# AWS::B2BI::Capability S3Location
 
 ## Syntax
 

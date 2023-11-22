@@ -1,4 +1,4 @@
-# AWS::B2Bi::Capability
+# AWS::B2BI::Capability
 
 Definition of AWS::B2BI::Capability Resource Type
 
@@ -10,7 +10,7 @@ To declare this entity in your AWS CloudFormation template, use the following sy
 
 <pre>
 {
-    "Type" : "AWS::B2Bi::Capability",
+    "Type" : "AWS::B2BI::Capability",
     "Properties" : {
         "<a href="#configuration" title="Configuration">Configuration</a>" : <i><a href="capabilityconfiguration.md">CapabilityConfiguration</a></i>,
         "<a href="#instructionsdocuments" title="InstructionsDocuments">InstructionsDocuments</a>" : <i>[ <a href="s3location.md">S3Location</a>, ... ]</i>,
@@ -24,7 +24,7 @@ To declare this entity in your AWS CloudFormation template, use the following sy
 ### YAML
 
 <pre>
-Type: AWS::B2Bi::Capability
+Type: AWS::B2BI::Capability
 Properties:
     <a href="#configuration" title="Configuration">Configuration</a>: <i><a href="capabilityconfiguration.md">CapabilityConfiguration</a></i>
     <a href="#instructionsdocuments" title="InstructionsDocuments">InstructionsDocuments</a>: <i>

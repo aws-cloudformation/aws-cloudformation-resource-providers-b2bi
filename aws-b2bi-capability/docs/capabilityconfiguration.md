@@ -1,4 +1,4 @@
-# AWS::B2Bi::Capability CapabilityConfiguration
+# AWS::B2BI::Capability CapabilityConfiguration
 
 ## Syntax
 

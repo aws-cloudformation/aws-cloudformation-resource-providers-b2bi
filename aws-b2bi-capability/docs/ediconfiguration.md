@@ -1,4 +1,4 @@
-# AWS::B2Bi::Capability EdiConfiguration
+# AWS::B2BI::Capability EdiConfiguration
 
 ## Syntax
 
