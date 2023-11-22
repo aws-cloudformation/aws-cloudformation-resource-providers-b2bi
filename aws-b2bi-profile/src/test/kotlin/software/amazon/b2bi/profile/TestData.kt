@@ -15,8 +15,8 @@ const val TEST_EMAIL = "test@amazon.com"
 const val TEST_LOG_GROUP_NAME = "Test log group name"
 const val TEST_NAME = "Test name"
 const val TEST_PHONE = "1234567890"
-const val TEST_PROFILE_ARN = "Test profile ARN"
-const val TEST_PROFILE_ID = "11111111"
+const val TEST_PROFILE_ID = "p-12345678901234567"
+const val TEST_PROFILE_ARN = "arn:aws:b2bi:us-east-1:123456789012:profile/$TEST_PROFILE_ID"
 
 val TEST_INSTANT = Instant.now()
 
@@ -37,25 +37,22 @@ val TEST_CREATE_PROFILE_REQUEST_RESOURCE_MODEL_WITH_REQUIRED_FIELDS = ResourceMo
     .businessName(TEST_BUSINESS_NAME)
     .logging(Logging.ENABLED.toString())
     .tags(emptyList())
-    .createdAt(TEST_INSTANT.toString())
-    .modifiedAt(TEST_INSTANT.toString())
     .build()
 
 val TEST_CREATE_PROFILE_REQUEST_RESOURCE_MODEL_WITH_ALL_FIELDS =
     TEST_CREATE_PROFILE_REQUEST_RESOURCE_MODEL_WITH_REQUIRED_FIELDS.toBuilder()
         .email(TEST_EMAIL)
-        .logGroupName(TEST_LOG_GROUP_NAME)
         .tags(listOf(TEST_RESOURCE_TAG))
         .build()
 
 val TEST_CREATE_PROFILE_RESPONSE_WITH_REQUIRED_FIELDS = CreateProfileResponse.builder()
     .profileId(TEST_PROFILE_ID)
+    .profileArn(TEST_PROFILE_ARN)
     .name(TEST_NAME)
     .phone(TEST_PHONE)
     .businessName(TEST_BUSINESS_NAME)
     .logging(Logging.ENABLED)
     .createdAt(TEST_INSTANT)
-    .modifiedAt(TEST_INSTANT)
     .build()
 
 val TEST_CREATE_PROFILE_RESPONSE_WITH_ALL_FIELDS =
@@ -108,6 +105,7 @@ val TEST_UPDATE_PROFILE_REQUEST_RESOURCE_MODEL_WITH_ALL_FIELDS = ResourceModel.b
 
 val TEST_UPDATE_PROFILE_RESPONSE_WITH_ALL_FIELDS = UpdateProfileResponse.builder()
     .profileId(TEST_PROFILE_ID)
+    .profileArn(TEST_PROFILE_ARN)
     .name(TEST_NAME)
     .email(TEST_EMAIL)
     .phone(TEST_PHONE)
@@ -120,6 +118,7 @@ val TEST_UPDATE_PROFILE_RESPONSE_WITH_ALL_FIELDS = UpdateProfileResponse.builder
 
 val TEST_UPDATE_PROFILE_RESPONSE_RESOURCE_MODEL_WITH_ALL_FIELDS = ResourceModel.builder()
     .profileId(TEST_PROFILE_ID)
+    .profileArn(TEST_PROFILE_ARN)
     .name(TEST_NAME)
     .email(TEST_EMAIL)
     .phone(TEST_PHONE)
@@ -136,8 +135,6 @@ val TEST_DELETE_PROFILE_REQUEST_RESOURCE_MODEL = ResourceModel.builder()
 val TEST_PROFILE_SUMMARY_WITH_ALL_FIELDS = ProfileSummary.builder()
     .profileId(TEST_PROFILE_ID)
     .name(TEST_NAME)
-    .email(TEST_EMAIL)
-    .phone(TEST_PHONE)
     .businessName(TEST_BUSINESS_NAME)
     .logging(Logging.ENABLED.toString())
     .logGroupName(TEST_LOG_GROUP_NAME)
@@ -152,8 +149,6 @@ val TEST_LIST_PROFILES_RESPONSE_WITH_ONE_PROFILE_WITH_ALL_FIELDS = ListProfilesR
 val TEST_LIST_PROFILES_RESPONSE_RESOURCE_MODEL_WITH_ALL_FIELDS = ResourceModel.builder()
     .profileId(TEST_PROFILE_ID)
     .name(TEST_NAME)
-    .email(TEST_EMAIL)
-    .phone(TEST_PHONE)
     .businessName(TEST_BUSINESS_NAME)
     .logging(Logging.ENABLED.toString())
     .logGroupName(TEST_LOG_GROUP_NAME)

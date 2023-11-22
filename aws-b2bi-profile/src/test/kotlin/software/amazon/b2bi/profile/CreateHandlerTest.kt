@@ -104,6 +104,9 @@ class CreateHandlerTest : AbstractTestBase() {
                 apiResponse = TEST_CREATE_PROFILE_RESPONSE_WITH_ALL_FIELDS,
                 expectedResourceModel = TEST_CREATE_PROFILE_REQUEST_RESOURCE_MODEL_WITH_ALL_FIELDS.toBuilder()
                     .profileId(TEST_PROFILE_ID)
+                    .profileArn(TEST_PROFILE_ARN)
+                    .logGroupName(TEST_LOG_GROUP_NAME)
+                    .createdAt(TEST_INSTANT.toString())
                     .build()
             ),
             TestArgs(
@@ -112,6 +115,8 @@ class CreateHandlerTest : AbstractTestBase() {
                 apiResponse = TEST_CREATE_PROFILE_RESPONSE_WITH_REQUIRED_FIELDS,
                 expectedResourceModel = TEST_CREATE_PROFILE_REQUEST_RESOURCE_MODEL_WITH_REQUIRED_FIELDS.toBuilder()
                     .profileId(TEST_PROFILE_ID)
+                    .profileArn(TEST_PROFILE_ARN)
+                    .createdAt(TEST_INSTANT.toString())
                     .build()
             ),
         )
