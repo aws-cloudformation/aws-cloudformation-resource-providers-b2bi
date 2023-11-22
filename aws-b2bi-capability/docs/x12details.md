@@ -1,4 +1,4 @@
-# AWS::B2Bi::Capability X12Details
+# AWS::B2BI::Capability X12Details
 
 ## Syntax
 

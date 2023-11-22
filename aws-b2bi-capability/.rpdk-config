@@ -1,6 +1,6 @@
 {
     "artifact_type": "RESOURCE",
-    "typeName": "AWS::B2Bi::Capability",
+    "typeName": "AWS::B2BI::Capability",
     "language": "java",
     "runtime": "java8",
     "entrypoint": "software.amazon.b2bi.capability.HandlerWrapper::handleRequest",

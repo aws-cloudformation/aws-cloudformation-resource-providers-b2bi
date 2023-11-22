@@ -37,7 +37,7 @@ class UpdateHandler : BaseHandlerStd() {
                 // and instead returns a 200 even though a resource does not exist, you must first check if the resource exists here
                 // NOTE: If your service API throws 'ResourceNotFoundException' for update requests this method is not necessary
                 proxy!!.initiate(
-                    "AWS-B2Bi-Capability::Update::PreUpdateCheck",
+                    "AWS-B2BI-Capability::Update::PreUpdateCheck",
                     proxyClient,
                     progress.resourceModel,
                     progress.callbackContext
@@ -58,7 +58,7 @@ class UpdateHandler : BaseHandlerStd() {
                 // Implement client invocation of the update request through the proxyClient, which is already initialised with
                 // caller credentials, correct region and retry settings
                 proxy!!.initiate(
-                    "AWS-B2Bi-Capability::Update::first",
+                    "AWS-B2BI-Capability::Update::first",
                     proxyClient,
                     progress.resourceModel,
                     progress.callbackContext
@@ -103,7 +103,7 @@ class UpdateHandler : BaseHandlerStd() {
                 // If your resource is provisioned through multiple API calls, you will need to apply each subsequent update
                 // step in a discrete call/stabilize chain to ensure the entire resource is provisioned as intended.
                 proxy!!.initiate(
-                    "AWS-B2Bi-Capability::Update::second",
+                    "AWS-B2BI-Capability::Update::second",
                     proxyClient,
                     progress.resourceModel,
                     progress.callbackContext

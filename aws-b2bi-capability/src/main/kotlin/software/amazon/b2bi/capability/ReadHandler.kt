@@ -29,7 +29,7 @@ class ReadHandler : BaseHandlerStd() {
 
         // STEP 1 [initialize a proxy context]
         return proxy!!.initiate(
-            "AWS-B2Bi-Capability::Read",
+            "AWS-B2BI-Capability::Read",
             proxyClient,
             request!!.desiredResourceState,
             callbackContext

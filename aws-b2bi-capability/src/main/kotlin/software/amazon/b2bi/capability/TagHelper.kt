@@ -154,7 +154,7 @@ class TagHelper {
         // resourceModel.getResourceName(), handlerRequest.getAwsAccountId()));
 
         // TODO: change untagResource in the method to your service API according to your SDK
-        return proxy.initiate("AWS-B2Bi-Capability::TagOps", serviceClient, resourceModel, callbackContext)
+        return proxy.initiate("AWS-B2BI-Capability::TagOps", serviceClient, resourceModel, callbackContext)
             .translateToServiceRequest { model: ResourceModel? -> Translator.tagResourceRequest(model, addedTags) }
             .makeServiceCall { request: AwsRequest?, client: ProxyClient<SdkClient>? -> null as AwsResponse? }
             .progress()
@@ -179,7 +179,7 @@ class TagHelper {
         // resourceModel.getResourceName(), handlerRequest.getAwsAccountId()));
 
         // TODO: change untagResource in the method to your service API according to your SDK
-        return proxy.initiate("AWS-B2Bi-Capability::TagOps", serviceClient, resourceModel, callbackContext)
+        return proxy.initiate("AWS-B2BI-Capability::TagOps", serviceClient, resourceModel, callbackContext)
             .translateToServiceRequest { model: ResourceModel? -> Translator.untagResourceRequest(model, removedTags) }
             .makeServiceCall { request: AwsRequest?, client: ProxyClient<SdkClient>? -> null as AwsResponse? }
             .progress()

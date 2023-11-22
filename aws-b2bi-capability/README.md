@@ -1,4 +1,4 @@
-# AWS::B2Bi::Capability
+# AWS::B2BI::Capability
 
 Congratulations on starting development! Next steps:
 

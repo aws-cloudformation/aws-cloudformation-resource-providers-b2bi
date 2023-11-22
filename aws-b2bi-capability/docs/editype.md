@@ -1,4 +1,4 @@
-# AWS::B2Bi::Capability EdiType
+# AWS::B2BI::Capability EdiType
 
 ## Syntax
 

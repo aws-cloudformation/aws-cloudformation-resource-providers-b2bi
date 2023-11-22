@@ -38,7 +38,7 @@ class CreateHandler : BaseHandlerStd() {
                 // and instead returns a 200 even though a resource already exists, you must first check if the resource exists here
                 // NOTE: If your service API throws 'ResourceAlreadyExistsException' for create requests this method is not necessary
                 proxy!!.initiate(
-                    "AWS-B2Bi-Capability::Create::PreExistanceCheck",
+                    "AWS-B2BI-Capability::Create::PreExistanceCheck",
                     proxyClient,
                     progress.resourceModel,
                     progress.callbackContext
@@ -64,7 +64,7 @@ class CreateHandler : BaseHandlerStd() {
                 // Implement client invocation of the create request through the proxyClient, which is already initialised with
                 // caller credentials, correct region and retry settings
                 proxy!!.initiate(
-                    "AWS-B2Bi-Capability::Create",
+                    "AWS-B2BI-Capability::Create",
                     proxyClient,
                     progress.resourceModel,
                     progress.callbackContext
