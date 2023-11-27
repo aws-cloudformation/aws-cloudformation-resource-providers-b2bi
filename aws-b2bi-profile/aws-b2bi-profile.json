@@ -116,7 +116,6 @@
         "logs:CreateLogDelivery",
         "logs:CreateLogGroup",
         "logs:CreateLogStream",
-        "logs:DeleteLogDelivery",
         "logs:DescribeLogGroups",
         "logs:DescribeLogStreams",
         "logs:DescribeResourcePolicies",
