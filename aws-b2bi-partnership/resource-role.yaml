@@ -30,11 +30,21 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
+<<<<<<< Updated upstream
                 - "initech:CreateReport"
                 - "initech:DeleteReport"
                 - "initech:DescribeReport"
                 - "initech:ListReports"
                 - "initech:UpdateReport"
+=======
+                - "b2bi:CreatePartnership"
+                - "b2bi:DeletePartnership"
+                - "b2bi:GetPartnership"
+                - "b2bi:ListPartnerships"
+                - "b2bi:TagResource"
+                - "b2bi:UntagResource"
+                - "b2bi:UpdatePartnership"
+>>>>>>> Stashed changes
                 Resource: "*"
 Outputs:
   ExecutionRoleArn:

@@ -1,5 +1,6 @@
 {
     "typeName": "AWS::B2BI::Partnership",
+<<<<<<< Updated upstream
     "description": "An example resource schema demonstrating some basic constructs and validation rules.",
     "sourceUrl": "https://github.com/aws-cloudformation/aws-cloudformation-rpdk.git",
     "definitions": {
@@ -22,10 +23,16 @@
         },
         "Tag": {
             "description": "A key-value pair to associate with a resource.",
+=======
+    "description": "Definition of AWS::B2BI::Partnership Resource Type",
+    "definitions": {
+        "Tag": {
+>>>>>>> Stashed changes
             "type": "object",
             "properties": {
                 "Key": {
                     "type": "string",
+<<<<<<< Updated upstream
                     "description": "The key name of the tag. You can specify a value that is 1 to 128 Unicode characters in length and cannot be prefixed with aws:. You can use any of the following characters: the set of Unicode letters, digits, whitespace, _, ., /, =, +, and -.",
                     "minLength": 1,
                     "maxLength": 128
@@ -35,6 +42,15 @@
                     "description": "The value for the tag. You can specify a value that is 0 to 256 Unicode characters in length and cannot be prefixed with aws:. You can use any of the following characters: the set of Unicode letters, digits, whitespace, _, ., /, =, +, and -.",
                     "minLength": 0,
                     "maxLength": 256
+=======
+                    "maxLength": 128,
+                    "minLength": 1
+                },
+                "Value": {
+                    "type": "string",
+                    "maxLength": 256,
+                    "minLength": 0
+>>>>>>> Stashed changes
                 }
             },
             "required": [
@@ -45,6 +61,7 @@
         }
     },
     "properties": {
+<<<<<<< Updated upstream
         "TPSCode": {
             "description": "A TPS Code is automatically generated on creation and assigned as the unique identifier.",
             "type": "string",
@@ -106,32 +123,153 @@
     ],
     "primaryIdentifier": [
         "/properties/TPSCode"
+=======
+        "Capabilities": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "maxLength": 64,
+                "minLength": 1,
+                "pattern": "^[a-zA-Z0-9_-]+$"
+            }
+        },
+        "CreatedAt": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "Email": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 5,
+            "pattern": "^[\\w\\.\\-]+@[\\w\\.\\-]+$"
+        },
+        "ModifiedAt": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "Name": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 1
+        },
+        "PartnershipArn": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1
+        },
+        "PartnershipId": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "Phone": {
+            "type": "string",
+            "maxLength": 22,
+            "minLength": 7,
+            "pattern": "^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$"
+        },
+        "ProfileId": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "Tags": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/Tag"
+            },
+            "maxItems": 200,
+            "minItems": 0
+        },
+        "TradingPartnerId": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_-]+$"
+        }
+    },
+    "required": [
+        "Email",
+        "Name",
+        "ProfileId"
+    ],
+    "readOnlyProperties": [
+        "/properties/CreatedAt",
+        "/properties/ModifiedAt",
+        "/properties/PartnershipArn",
+        "/properties/PartnershipId",
+        "/properties/TradingPartnerId"
+    ],
+    "createOnlyProperties": [
+        "/properties/Email",
+        "/properties/Phone",
+        "/properties/ProfileId"
+    ],
+    "primaryIdentifier": [
+        "/properties/PartnershipId"
+>>>>>>> Stashed changes
     ],
     "handlers": {
         "create": {
             "permissions": [
+<<<<<<< Updated upstream
                 "initech:CreateReport"
+=======
+                "b2bi:CreatePartnership",
+                "b2bi:TagResource"
+>>>>>>> Stashed changes
             ]
         },
         "read": {
             "permissions": [
+<<<<<<< Updated upstream
                 "initech:DescribeReport"
+=======
+                "b2bi:GetPartnership"
+>>>>>>> Stashed changes
             ]
         },
         "update": {
             "permissions": [
+<<<<<<< Updated upstream
                 "initech:UpdateReport"
+=======
+                "b2bi:TagResource",
+                "b2bi:UntagResource",
+                "b2bi:UpdatePartnership"
+>>>>>>> Stashed changes
             ]
         },
         "delete": {
             "permissions": [
+<<<<<<< Updated upstream
                 "initech:DeleteReport"
+=======
+                "b2bi:DeletePartnership"
+>>>>>>> Stashed changes
             ]
         },
         "list": {
             "permissions": [
+<<<<<<< Updated upstream
                 "initech:ListReports"
             ]
         }
     }
+=======
+                "b2bi:ListPartnerships"
+            ]
+        }
+    },
+    "tagging": {
+        "cloudFormationSystemTags": true,
+        "tagOnCreate": true,
+        "tagProperty": "/properties/Tags",
+        "tagUpdatable": true,
+        "taggable": true
+    },
+    "additionalProperties": false
+>>>>>>> Stashed changes
 }

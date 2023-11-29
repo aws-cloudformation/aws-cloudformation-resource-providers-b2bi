@@ -13,6 +13,7 @@ out/
 .settings
 .project
 
+<<<<<<< Updated upstream
 # auto-generated files
 target/
 
@@ -20,4 +21,13 @@ target/
 rpdk.log*
 
 # contains credentials
+=======
+# Auto-generated files
+target/
+
+# Our logs
+rpdk.log*
+
+# Contains credentials
+>>>>>>> Stashed changes
 sam-tests/
