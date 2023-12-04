@@ -54,7 +54,6 @@ class ReadHandler : BaseHandlerStd() {
         getProfileResponse: GetProfileResponse,
         proxyClient: ProxyClient<B2BiClient>
     ) {
-        logger.log(getProfileResponse.toString())
         val readResponseResourceModel = Translator.translateFromReadResponse(getProfileResponse)
         resourceModel.apply {
             profileArn = readResponseResourceModel.profileArn
