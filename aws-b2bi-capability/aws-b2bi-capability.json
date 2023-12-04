@@ -225,12 +225,27 @@
     "create": {
       "permissions": [
         "b2bi:CreateCapability",
-        "b2bi:TagResource"
+        "b2bi:TagResource",
+        "s3:GetObject",
+        "s3:ListBucket",
+        "events:DescribeRule",
+        "events:PutRule",
+        "events:PutTargets",
+        "logs:CreateLogDelivery",
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+        "logs:DescribeResourcePolicies",
+        "logs:ListLogDeliveries",
+        "logs:PutLogEvents",
+        "logs:PutResourcePolicy"
       ]
     },
     "read": {
       "permissions": [
-        "b2bi:GetCapability"
+        "b2bi:GetCapability",
+        "b2bi:ListTagsForResource"
       ]
     },
     "update": {

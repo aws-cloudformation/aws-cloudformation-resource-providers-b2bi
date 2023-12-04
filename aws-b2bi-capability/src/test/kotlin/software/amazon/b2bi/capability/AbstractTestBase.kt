@@ -1,7 +1,5 @@
 package software.amazon.b2bi.capability
 
-import java.util.concurrent.CompletableFuture
-import java.util.function.Function
 import software.amazon.awssdk.awscore.AwsRequest
 import software.amazon.awssdk.awscore.AwsResponse
 import software.amazon.awssdk.core.ResponseBytes
@@ -12,51 +10,47 @@ import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
 import software.amazon.cloudformation.proxy.Credentials
 import software.amazon.cloudformation.proxy.LoggerProxy
 import software.amazon.cloudformation.proxy.ProxyClient
+import java.util.concurrent.CompletableFuture
+import java.util.function.Function
 
 abstract class AbstractTestBase {
-    internal var MOCK_CREDENTIALS: Credentials
-    internal var logger: LoggerProxy
+    internal val mockCredentials: Credentials = Credentials("accessKey", "secretKey", "token")
+    internal val logger: LoggerProxy = LoggerProxy()
 
-    init {
-        MOCK_CREDENTIALS = Credentials("accessKey", "secretKey", "token")
-        logger = LoggerProxy()
-    }
-
-    fun MOCK_PROXY(
+    fun mockProxy(
         proxy: AmazonWebServicesClientProxy,
-        sdkClient: B2BiClient
+        b2BiClient: B2BiClient
     ): ProxyClient<B2BiClient> {
         return object : ProxyClient<B2BiClient> {
-
-            override fun <RequestT : AwsRequest?, ResponseT : AwsResponse?> injectCredentialsAndInvokeV2(
+            override fun <RequestT: AwsRequest?, ResponseT: AwsResponse?> injectCredentialsAndInvokeV2(
                 request: RequestT,
                 requestFunction: Function<RequestT, ResponseT>?
             ): ResponseT {
                 return proxy.injectCredentialsAndInvokeV2(request, requestFunction)
             }
 
-            override fun <RequestT : AwsRequest?, ResponseT : AwsResponse?> injectCredentialsAndInvokeV2Async(
+            override fun <RequestT: AwsRequest?, ResponseT: AwsResponse?> injectCredentialsAndInvokeV2Async(
                 request: RequestT,
                 requestFunction: Function<RequestT, CompletableFuture<ResponseT>?>?
             ): CompletableFuture<ResponseT> {
                 throw UnsupportedOperationException()
             }
 
-            override fun <RequestT : AwsRequest?, ResponseT : AwsResponse?, IterableT : SdkIterable<ResponseT>?> injectCredentialsAndInvokeIterableV2(
+            override fun <RequestT: AwsRequest?, ResponseT: AwsResponse?, IterableT: SdkIterable<ResponseT>?> injectCredentialsAndInvokeIterableV2(
                 request: RequestT,
                 requestFunction: Function<RequestT, IterableT>?
             ): IterableT {
                 return proxy.injectCredentialsAndInvokeIterableV2(request, requestFunction)
             }
 
-            override fun <RequestT : AwsRequest?, ResponseT : AwsResponse?> injectCredentialsAndInvokeV2InputStream(
+            override fun <RequestT: AwsRequest?, ResponseT: AwsResponse?> injectCredentialsAndInvokeV2InputStream(
                 requestT: RequestT,
                 function: Function<RequestT, ResponseInputStream<ResponseT>?>?
             ): ResponseInputStream<ResponseT> {
                 throw UnsupportedOperationException()
             }
 
-            override fun <RequestT : AwsRequest?, ResponseT : AwsResponse?> injectCredentialsAndInvokeV2Bytes(
+            override fun <RequestT: AwsRequest?, ResponseT: AwsResponse?> injectCredentialsAndInvokeV2Bytes(
                 requestT: RequestT,
                 function: Function<RequestT, ResponseBytes<ResponseT>?>?
             ): ResponseBytes<ResponseT> {
@@ -64,7 +58,7 @@ abstract class AbstractTestBase {
             }
 
             override fun client(): B2BiClient {
-                return sdkClient
+                return b2BiClient
             }
         }
     }
