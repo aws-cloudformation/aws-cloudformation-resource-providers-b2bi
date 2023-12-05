@@ -39,7 +39,6 @@ object TagHelper {
      */
     fun getPreviouslyAttachedTags(handlerRequest: ResourceHandlerRequest<ResourceModel>): Map<String, String> {
         return getTags(
-            handlerRequest.previousSystemTags,
             handlerRequest.previousResourceTags,
             convertToMap(handlerRequest.previousResourceState.tags)
         )
@@ -59,7 +58,6 @@ object TagHelper {
      */
     fun getNewDesiredTags(handlerRequest: ResourceHandlerRequest<ResourceModel>): Map<String, String> {
         return getTags(
-            handlerRequest.systemTags,
             handlerRequest.desiredResourceTags,
             convertToMap(handlerRequest.desiredResourceState.tags)
         )
