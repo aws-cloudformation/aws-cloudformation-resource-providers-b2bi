@@ -44,12 +44,12 @@ class ReadHandler : BaseHandlerStd() {
         } catch (e: AwsServiceException) {
             throw e.toCfnException()
         }
-        updateResourceModelTags(resourceModel, response, proxyClient)
+        updateResourceModel(resourceModel, response, proxyClient)
         logger.log("Successfully read ${ResourceModel.TYPE_NAME} ${resourceModel.profileId}")
         return response
     }
 
-    private fun updateResourceModelTags(
+    private fun updateResourceModel(
         resourceModel: ResourceModel,
         getProfileResponse: GetProfileResponse,
         proxyClient: ProxyClient<B2BiClient>
