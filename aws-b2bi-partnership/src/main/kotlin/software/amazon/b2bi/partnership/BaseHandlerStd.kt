@@ -1,8 +1,6 @@
 package software.amazon.b2bi.partnership
 
-
 import software.amazon.awssdk.services.b2bi.B2BiClient
-import software.amazon.b2bi.profile.ClientBuilder
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
 import software.amazon.cloudformation.proxy.Logger
 import software.amazon.cloudformation.proxy.ProgressEvent
@@ -26,7 +24,7 @@ abstract class BaseHandlerStd : BaseHandler<CallbackContext?>() {
         )
     }
 
-    protected abstract fun handleRequest(
+    internal abstract fun handleRequest(
         proxy: AmazonWebServicesClientProxy,
         request: ResourceHandlerRequest<ResourceModel>,
         callbackContext: CallbackContext?,

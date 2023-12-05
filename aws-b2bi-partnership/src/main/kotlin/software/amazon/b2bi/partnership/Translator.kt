@@ -3,6 +3,34 @@ package software.amazon.b2bi.partnership
 import com.google.common.collect.Lists
 import software.amazon.awssdk.awscore.AwsRequest
 import software.amazon.awssdk.awscore.AwsResponse
+import software.amazon.awssdk.awscore.exception.AwsServiceException
+import software.amazon.awssdk.services.b2bi.model.AccessDeniedException
+import software.amazon.awssdk.services.b2bi.model.ConflictException
+import software.amazon.awssdk.services.b2bi.model.CreatePartnershipRequest
+import software.amazon.awssdk.services.b2bi.model.DeleteCapabilityRequest
+import software.amazon.awssdk.services.b2bi.model.DeletePartnershipRequest
+import software.amazon.awssdk.services.b2bi.model.GetPartnershipRequest
+import software.amazon.awssdk.services.b2bi.model.GetPartnershipResponse
+import software.amazon.awssdk.services.b2bi.model.InternalServerException
+import software.amazon.awssdk.services.b2bi.model.ListPartnershipsRequest
+import software.amazon.awssdk.services.b2bi.model.ListPartnershipsResponse
+import software.amazon.awssdk.services.b2bi.model.ResourceNotFoundException
+import software.amazon.awssdk.services.b2bi.model.ServiceQuotaExceededException
+import software.amazon.awssdk.services.b2bi.model.TagResourceRequest
+import software.amazon.awssdk.services.b2bi.model.ThrottlingException
+import software.amazon.awssdk.services.b2bi.model.UntagResourceRequest
+import software.amazon.awssdk.services.b2bi.model.UpdatePartnershipRequest
+import software.amazon.awssdk.services.b2bi.model.ValidationException
+import software.amazon.b2bi.partnership.TagHelper.toSdkTag
+import software.amazon.cloudformation.exceptions.BaseHandlerException
+import software.amazon.cloudformation.exceptions.CfnAccessDeniedException
+import software.amazon.cloudformation.exceptions.CfnAlreadyExistsException
+import software.amazon.cloudformation.exceptions.CfnGeneralServiceException
+import software.amazon.cloudformation.exceptions.CfnInvalidRequestException
+import software.amazon.cloudformation.exceptions.CfnNotFoundException
+import software.amazon.cloudformation.exceptions.CfnServiceInternalErrorException
+import software.amazon.cloudformation.exceptions.CfnServiceLimitExceededException
+import software.amazon.cloudformation.exceptions.CfnThrottlingException
 import java.util.*
 import java.util.stream.Collectors
 import java.util.stream.Stream
@@ -19,10 +47,15 @@ object Translator {
      * @param model resource model
      * @return awsRequest the aws service request to create a resource
      */
-    fun translateToCreateRequest(model: ResourceModel?): AwsRequest? {
-        // TODO: construct a request
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L39-L43
-        return null as AwsRequest?
+    fun translateToCreateRequest(model: ResourceModel): CreatePartnershipRequest {
+        return CreatePartnershipRequest.builder()
+            .profileId(model.profileId)
+            .name(model.name)
+            .email(model.email)
+            .phone(model.phone)
+            .capabilities(model.capabilities)
+            .tags(model.tags.map { it.toSdkTag() })
+            .build()
     }
 
     /**
@@ -31,10 +64,10 @@ object Translator {
      * @return awsRequest the aws service request to describe a resource
      */
     @JvmStatic
-    fun translateToReadRequest(model: ResourceModel?): AwsRequest? {
-        // TODO: construct a request
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L20-L24
-        return null as AwsRequest?
+    fun translateToReadRequest(model: ResourceModel): GetPartnershipRequest {
+        return GetPartnershipRequest.builder()
+            .partnershipId(model.partnershipId)
+            .build()
     }
 
     /**
@@ -42,9 +75,18 @@ object Translator {
      * @param awsResponse the aws service describe resource response
      * @return model resource model
      */
-    fun translateFromReadResponse(awsResponse: AwsResponse?): ResourceModel {
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L58-L73
-        return ResourceModel.builder() //.someProperty(response.property())
+    fun translateFromReadResponse(response: GetPartnershipResponse): ResourceModel {
+        return ResourceModel.builder()
+            .profileId(response.profileId().ifEmpty { null })
+            .partnershipId(response.partnershipId().ifEmpty { null })
+            .partnershipArn(response.partnershipArn().ifEmpty { null })
+            .name(response.name().ifEmpty { null })
+            .email(response.email().ifEmpty { null })
+            .phone(response.phone().ifEmpty { null })
+            .capabilities(response.capabilities())
+            .tradingPartnerId(response.tradingPartnerId().ifEmpty { null })
+            .createdAt(response.createdAt().toString().ifEmpty { null })
+            .modifiedAt(response.modifiedAt().toString().ifEmpty { null })
             .build()
     }
 
@@ -53,92 +95,99 @@ object Translator {
      * @param model resource model
      * @return awsRequest the aws service request to delete a resource
      */
-    fun translateToDeleteRequest(model: ResourceModel?): AwsRequest? {
-        // TODO: construct a request
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L33-L37
-        return null as AwsRequest?
+    fun translateToDeleteRequest(model: ResourceModel): DeletePartnershipRequest {
+        return DeletePartnershipRequest.builder()
+            .partnershipId(model.partnershipId)
+            .build()
     }
 
     /**
      * Request to update properties of a previously created resource
      * @param model resource model
-     * @return awsRequest the aws service request to modify a resource
+     * @return updateCapabilityRequest the aws service request to modify a resource
      */
-    @JvmStatic
-    fun translateToFirstUpdateRequest(model: ResourceModel?): AwsRequest? {
-        // TODO: construct a request
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L45-L50
-        return null as AwsRequest?
-    }
-
-    /**
-     * Request to update some other properties that could not be provisioned through first update request
-     * @param model resource model
-     * @return awsRequest the aws service request to modify a resource
-     */
-    @JvmStatic
-    fun translateToSecondUpdateRequest(model: ResourceModel?): AwsRequest? {
-        // TODO: construct a request
-        return null as AwsRequest?
+    fun translateToUpdateRequest(model: ResourceModel): UpdatePartnershipRequest {
+        return UpdatePartnershipRequest.builder()
+            .partnershipId(model.partnershipId)
+            .name(model.name)
+            .capabilities(model.capabilities)
+            .build()
     }
 
     /**
      * Request to list resources
      * @param nextToken token passed to the aws service list resources request
-     * @return awsRequest the aws service request to list resources within aws account
+     * @return listCapabilityRequest the aws service request to list resources within aws account
      */
-    fun translateToListRequest(nextToken: String?): AwsRequest? {
-        // TODO: construct a request
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L26-L31
-        return null as AwsRequest?
+    fun translateToListRequest(nextToken: String?): ListPartnershipsRequest {
+        return ListPartnershipsRequest.builder()
+            .apply {
+                nextToken?.let { nextToken(it) }
+            }
+            .build()
     }
 
     /**
      * Translates resource objects from sdk into a resource model (primary identifier only)
-     * @param awsResponse the aws service describe resource response
+     * @param response the capability list resource response
      * @return list of resource models
      */
-    fun translateFromListRequest(awsResponse: AwsResponse?): List<ResourceModel> {
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L75-L82
-        return streamOfOrEmpty(Lists.newArrayList<Any>())
-            .map { resource: Any? ->
-                ResourceModel.builder() // include only primary identifier
-                    .build()
-            }
-            .collect(Collectors.toList())
-    }
-
-    private fun <T> streamOfOrEmpty(collection: Collection<T>): Stream<T> {
-        return Optional.ofNullable(collection)
-            .map { obj: Collection<T> -> obj.stream() }
-            .orElseGet { Stream.empty() }
-    }
-
-    /**
-     * Request to add tags to a resource
-     * @param model resource model
-     * @return awsRequest the aws service request to create a resource
-     */
-    fun tagResourceRequest(
-        model: ResourceModel?,
-        addedTags: Map<String?, String?>?
-    ): AwsRequest? {
-        // TODO: construct a request
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L39-L43
-        return null as AwsRequest?
+    fun translateFromListResponse(response: ListPartnershipsResponse): List<ResourceModel> {
+        return response.partnerships().map {
+            ResourceModel.builder()
+                .profileId(it.profileId())
+                .partnershipId(it.partnershipId())
+                .name(it.name())
+                .capabilities(it.capabilities())
+                .tradingPartnerId(it.tradingPartnerId())
+                .createdAt(it.createdAt().toString())
+                .modifiedAt(it.modifiedAt().toString())
+                .build()
+        }
     }
 
     /**
      * Request to add tags to a resource
      * @param model resource model
-     * @return awsRequest the aws service request to create a resource
+     * @param addedTags tags to add
+     * @return tagResourceRequest the aws service request to create a resource
      */
-    fun untagResourceRequest(
-        model: ResourceModel?,
-        removedTags: Set<String?>?
-    ): AwsRequest? {
-        // TODO: construct a request
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/2077c92299aeb9a68ae8f4418b5e932b12a8b186/aws-logs-loggroup/src/main/java/com/aws/logs/loggroup/Translator.java#L39-L43
-        return null as AwsRequest?
+    fun translateToTagResourceRequest(model: ResourceModel, addedTags: Map<String, String>): TagResourceRequest {
+        return TagResourceRequest.builder()
+            .resourceARN(model.partnershipArn)
+            .tags(TagHelper.convertToList(addedTags).map { it.toSdkTag() })
+            .build()
+    }
+
+    /**
+     * Request to add tags to a resource
+     * @param model resource model
+     * @param removedTags tags to remove
+     * @return untagResourceRequest the aws service request to create a resource
+     */
+    fun translateToUntagResourceRequest(model: ResourceModel, removedTags: Set<String>): UntagResourceRequest {
+        return UntagResourceRequest.builder()
+            .resourceARN(model.partnershipArn)
+            .tagKeys(removedTags)
+            .build()
+    }
+
+    /**
+     * Throws a CloudFormation exception for the corresponding B2BI exception
+     *
+     * While the handler contract states that the handler must always return a progress event,
+     * you may throw any instance of BaseHandlerException, as the wrapper map it to a progress event.
+     * Each BaseHandlerException maps to a specific error code, and you should map service exceptions as closely as
+     * possible to more specific error codes
+     */
+    fun AwsServiceException.toCfnException(): BaseHandlerException = when (this) {
+        is AccessDeniedException -> CfnAccessDeniedException(this)
+        is ConflictException -> CfnAlreadyExistsException(this)
+        is InternalServerException -> CfnServiceInternalErrorException(this)
+        is ResourceNotFoundException -> CfnNotFoundException(this)
+        is ServiceQuotaExceededException -> CfnServiceLimitExceededException(this)
+        is ThrottlingException -> CfnThrottlingException(this)
+        is ValidationException -> CfnInvalidRequestException(this)
+        else -> CfnGeneralServiceException(this)
     }
 }

@@ -1,4 +1,4 @@
-package software.amazon.b2bi.profile
+package software.amazon.b2bi.partnership
 
 import software.amazon.awssdk.services.b2bi.B2BiClient
 import software.amazon.cloudformation.LambdaWrapper
