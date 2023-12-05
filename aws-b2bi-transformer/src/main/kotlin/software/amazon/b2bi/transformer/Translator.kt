@@ -7,13 +7,15 @@ import software.amazon.awssdk.awscore.exception.AwsServiceException
 import software.amazon.awssdk.services.b2bi.model.*
 import software.amazon.awssdk.services.b2bi.model.ResourceNotFoundException
 import software.amazon.awssdk.services.b2bi.model.X12Details
-import software.amazon.b2bi.transformer.EdiHelper.translateToResourceEdi
-import software.amazon.b2bi.transformer.EdiHelper.translateToSdkEdi
 import software.amazon.b2bi.transformer.TagHelper.toSdkTag
 import software.amazon.cloudformation.exceptions.*
 import java.util.*
 import java.util.stream.Collectors
 import java.util.stream.Stream
+import software.amazon.b2bi.transformer.EdiType as ResourceEdi
+import software.amazon.awssdk.services.b2bi.model.EdiType as SdkEdi
+import software.amazon.b2bi.transformer.X12Details as ResourceX12
+import software.amazon.awssdk.services.b2bi.model.X12Details as SdkX12
 
 /**
  * This class is a centralized placeholder for
@@ -56,7 +58,6 @@ object Translator {
      */
     fun translateFromReadResponse(response: GetTransformerResponse): ResourceModel {
         return ResourceModel.builder()
-            .modifiedAt(if (response.modifiedAt() != null) response.modifiedAt().toString() else null)
             .transformerId(response.transformerId().ifEmpty { null })
             .transformerArn(response.transformerArn().ifEmpty { null })
             .name(response.name().ifEmpty { null })
@@ -66,6 +67,7 @@ object Translator {
             .ediType(response.ediType().translateToResourceEdi())
             .status(response.status().toString().ifEmpty { null })
             .createdAt(response.createdAt().toString().ifEmpty { null })
+            .modifiedAt(if (response.modifiedAt() != null) response.modifiedAt().toString() else null)
             .build()
     }
 
@@ -153,6 +155,16 @@ object Translator {
             .resourceARN(model.transformerArn)
             .tagKeys(removedTags)
             .build()
+    }
+
+    fun ResourceEdi.translateToSdkEdi(): SdkEdi {
+        val x12 : SdkX12 = SdkX12.builder().transactionSet(this.x12Details.transactionSet).version(this.x12Details.version).build()
+        return SdkEdi.builder().x12Details(x12).build()
+    }
+
+    fun SdkEdi.translateToResourceEdi(): ResourceEdi {
+        val x12 : ResourceX12 = ResourceX12.builder().transactionSet(this.x12Details().transactionSetAsString()).version(this.x12Details().versionAsString()).build()
+        return ResourceEdi.builder().x12Details(x12).build()
     }
 
     fun AwsServiceException.toCfnException(): BaseHandlerException = when (this) {

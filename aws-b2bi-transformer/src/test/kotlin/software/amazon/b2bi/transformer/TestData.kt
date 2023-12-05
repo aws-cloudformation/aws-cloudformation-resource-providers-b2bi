@@ -9,7 +9,7 @@ import software.amazon.awssdk.services.b2bi.model.Logging
 import software.amazon.awssdk.services.b2bi.model.TransformerSummary
 import software.amazon.awssdk.services.b2bi.model.UpdateTransformerResponse
 import software.amazon.b2bi.transformer.TagHelper.toSdkTag
-import software.amazon.b2bi.transformer.EdiHelper.translateToSdkEdi
+import software.amazon.b2bi.transformer.Translator.translateToSdkEdi
 
 import java.time.Instant
 

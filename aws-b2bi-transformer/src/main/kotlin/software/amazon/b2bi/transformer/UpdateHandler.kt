@@ -6,7 +6,7 @@ import software.amazon.awssdk.core.SdkClient
 import software.amazon.awssdk.services.b2bi.B2BiClient
 import software.amazon.awssdk.services.b2bi.model.UpdateTransformerRequest
 import software.amazon.awssdk.services.b2bi.model.UpdateTransformerResponse
-import software.amazon.b2bi.transformer.EdiHelper.translateToResourceEdi
+import software.amazon.b2bi.transformer.Translator.translateToResourceEdi
 import software.amazon.b2bi.transformer.TagHelper.convertToList
 import software.amazon.b2bi.transformer.TagHelper.generateTagsToAdd
 import software.amazon.b2bi.transformer.TagHelper.generateTagsToRemove

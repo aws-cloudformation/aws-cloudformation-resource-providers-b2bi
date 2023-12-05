@@ -5,7 +5,6 @@ import software.amazon.awssdk.awscore.exception.AwsServiceException
 import software.amazon.awssdk.services.b2bi.B2BiClient
 import software.amazon.awssdk.services.b2bi.model.GetTransformerRequest
 import software.amazon.awssdk.services.b2bi.model.GetTransformerResponse
-import software.amazon.b2bi.transformer.EdiHelper.translateToResourceEdi
 import software.amazon.b2bi.transformer.Translator.toCfnException
 import software.amazon.cloudformation.exceptions.CfnGeneralServiceException
 import software.amazon.cloudformation.proxy.*
@@ -56,15 +55,15 @@ class ReadHandler : BaseHandlerStd() {
     ) {
         val readResponseResourceModel = Translator.translateFromReadResponse(getTransformerResponse)
         resourceModel.apply {
-            modifiedAt = readResponseResourceModel.modifiedAt
             transformerArn = readResponseResourceModel.transformerArn
             name = readResponseResourceModel.name
-            createdAt = readResponseResourceModel.createdAt
             fileFormat = readResponseResourceModel.fileFormat
             mappingTemplate = readResponseResourceModel.mappingTemplate
             status =  readResponseResourceModel.status
             ediType = readResponseResourceModel.ediType
             sampleDocument = readResponseResourceModel.sampleDocument
+            createdAt = readResponseResourceModel.createdAt
+            modifiedAt = readResponseResourceModel.modifiedAt
         }
         resourceModel.tags = TagHelper.listTagsForResource(getTransformerResponse.transformerArn(), proxyClient)
     }
