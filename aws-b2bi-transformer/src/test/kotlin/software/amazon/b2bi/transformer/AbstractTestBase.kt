@@ -7,6 +7,8 @@ import software.amazon.awssdk.awscore.AwsResponse
 import software.amazon.awssdk.core.ResponseBytes
 import software.amazon.awssdk.core.ResponseInputStream
 import software.amazon.awssdk.core.SdkClient
+import software.amazon.awssdk.services.b2bi.B2BiClient
+import software.amazon.awssdk.services.b2bi.model.B2BiResponse
 import software.amazon.awssdk.core.pagination.sync.SdkIterable
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
 import software.amazon.cloudformation.proxy.Credentials
@@ -14,19 +16,15 @@ import software.amazon.cloudformation.proxy.LoggerProxy
 import software.amazon.cloudformation.proxy.ProxyClient
 
 abstract class AbstractTestBase {
-    internal var MOCK_CREDENTIALS: Credentials
-    internal var logger: LoggerProxy
 
-    init {
-        MOCK_CREDENTIALS = Credentials("accessKey", "secretKey", "token")
-        logger = LoggerProxy()
-    }
+    internal val mockCredentials: Credentials = Credentials("accessKey", "secretKey", "token")
+    internal val logger: LoggerProxy = LoggerProxy()
 
-    fun MOCK_PROXY(
+    fun mockProxy(
         proxy: AmazonWebServicesClientProxy,
-        sdkClient: SdkClient
-    ): ProxyClient<SdkClient> {
-        return object : ProxyClient<SdkClient> {
+        b2BiClient: B2BiClient
+    ): ProxyClient<B2BiClient> {
+        return object : ProxyClient<B2BiClient> {
 
             override fun <RequestT : AwsRequest?, ResponseT : AwsResponse?> injectCredentialsAndInvokeV2(
                 request: RequestT,
@@ -63,8 +61,8 @@ abstract class AbstractTestBase {
                 throw UnsupportedOperationException()
             }
 
-            override fun client(): SdkClient {
-                return sdkClient
+            override fun client(): B2BiClient {
+                return b2BiClient
             }
         }
     }

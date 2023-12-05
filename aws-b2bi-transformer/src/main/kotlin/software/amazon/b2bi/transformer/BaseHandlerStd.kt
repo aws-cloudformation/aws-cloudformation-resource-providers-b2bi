@@ -1,7 +1,6 @@
 package software.amazon.b2bi.transformer
 
-
-import software.amazon.awssdk.core.SdkClient
+import software.amazon.awssdk.services.b2bi.B2BiClient
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
 import software.amazon.cloudformation.proxy.Logger
 import software.amazon.cloudformation.proxy.ProgressEvent
@@ -25,10 +24,10 @@ abstract class BaseHandlerStd : BaseHandler<CallbackContext?>() {
     }
 
     internal abstract fun handleRequest(
-            proxy: AmazonWebServicesClientProxy,
-            request: ResourceHandlerRequest<ResourceModel>,
-            callbackContext: CallbackContext?,
-            proxyClient: ProxyClient<SdkClient>,
-            logger: Logger
+        proxy: AmazonWebServicesClientProxy,
+        request: ResourceHandlerRequest<ResourceModel>,
+        callbackContext: CallbackContext?,
+        proxyClient: ProxyClient<B2BiClient>,
+        logger: Logger
     ): ProgressEvent<ResourceModel, CallbackContext?>
 }

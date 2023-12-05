@@ -1,23 +1,10 @@
 package software.amazon.b2bi.transformer
 
-import software.amazon.awssdk.core.SdkClient
+import software.amazon.awssdk.services.b2bi.B2BiClient
+import software.amazon.cloudformation.LambdaWrapper
 
-// TODO: replace all usage of SdkClient with your service client type, e.g; YourServiceClient
-// import software.amazon.awssdk.services.yourservice.YourServiceClient;
-// import software.amazon.cloudformation.LambdaWrapper;
 object ClientBuilder {
-        /*
-  TODO: uncomment the following, replacing YourServiceClient with your service client name
-  It is recommended to use static HTTP client so less memory is consumed
-  e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/master/aws-logs-loggroup/src/main/java/software/amazon/logs/loggroup/ClientBuilder.java#L9
-
-  public static YourServiceClient getClient() {
-    return YourServiceClient.builder()
-              .httpClient(LambdaWrapper.HTTP_CLIENT)
-              .build();
-  }
-  */
-        fun getClient(): SdkClient ? {
-            return null;
-        }
+        fun getClient(): B2BiClient = B2BiClient.builder()
+            .httpClient(LambdaWrapper.HTTP_CLIENT)
+            .build()
 }
