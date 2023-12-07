@@ -1,6 +1,5 @@
 package software.amazon.b2bi.partnership
 
-import software.amazon.awssdk.awscore.AwsResponse
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
 import software.amazon.cloudformation.proxy.Logger
 import software.amazon.cloudformation.proxy.OperationStatus
@@ -14,23 +13,16 @@ class ListHandler : BaseHandler<CallbackContext?>() {
         callbackContext: CallbackContext?,
         logger: Logger
     ): ProgressEvent<ResourceModel, CallbackContext?> {
-        val models: List<ResourceModel> = ArrayList()
-
-        // STEP 1 [TODO: construct a body of a request]
-        val awsRequest = Translator.translateToListRequest(request.nextToken)
-
-        // STEP 2 [TODO: make an api call]
-        val awsResponse: AwsResponse? =
-            null // proxy.injectCredentialsAndInvokeV2(awsRequest, ClientBuilder.getClient()::describeLogGroups);
-
-        // STEP 3 [TODO: get a token for the next page]
-        val nextToken: String? = null
-
-        // STEP 4 [TODO: construct resource models]
-        // e.g. https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-logs/blob/master/aws-logs-loggroup/src/main/java/software/amazon/logs/loggroup/ListHandler.java#L19-L21
-        return ProgressEvent.builder<ResourceModel, CallbackContext?>()
-            .resourceModels(models)
-            .nextToken(nextToken)
+        val listPartnershipsRequest = Translator.translateToListRequest(request.nextToken)
+        val listPartnershipsResponse = proxy.injectCredentialsAndInvokeV2(
+            listPartnershipsRequest,
+            ClientBuilder.getClient()::listPartnerships
+        )
+        logger.log("Successfully listed ${ResourceModel.TYPE_NAME}")
+        val resourceModels = Translator.translateFromListResponse(listPartnershipsResponse)
+        return ProgressEvent.builder<ResourceModel, CallbackContext>()
+            .resourceModels(resourceModels)
+            .nextToken(listPartnershipsResponse.nextToken())
             .status(OperationStatus.SUCCESS)
             .build()
     }

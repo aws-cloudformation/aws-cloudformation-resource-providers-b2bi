@@ -1,45 +1,97 @@
 package software.amazon.b2bi.partnership
 
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.Mockito
-import org.mockito.junit.jupiter.MockitoExtension
+import io.mockk.MockKAnnotations
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.mockkObject
+import io.mockk.unmockkAll
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
+import software.amazon.awssdk.services.b2bi.B2BiClient
+import software.amazon.awssdk.services.b2bi.model.ListPartnershipsRequest
+import software.amazon.awssdk.services.b2bi.model.ListPartnershipsResponse
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
 import software.amazon.cloudformation.proxy.Logger
 import software.amazon.cloudformation.proxy.OperationStatus
+import software.amazon.cloudformation.proxy.ProgressEvent
 import software.amazon.cloudformation.proxy.ResourceHandlerRequest
+import java.util.function.Function
 
-@ExtendWith(MockitoExtension::class)
+@TestInstance(Lifecycle.PER_CLASS)
 class ListHandlerTest {
-    @Mock
+    @MockK
     private lateinit var proxy: AmazonWebServicesClientProxy
-
-    @Mock
+    @MockK
     private lateinit var logger: Logger
-    @BeforeEach
-    fun setup() {
-        proxy = Mockito.mock(AmazonWebServicesClientProxy::class.java)
-        logger = Mockito.mock(Logger::class.java)
+    @MockK
+    private lateinit var b2BiClient: B2BiClient
+    private var handler = ListHandler()
+
+    @BeforeAll
+    fun setupOnce() {
+        MockKAnnotations.init(this, relaxed = true)
+        mockkObject(ClientBuilder)
+        every { ClientBuilder.getClient() } returns b2BiClient
     }
 
-    @Test
-    fun handleRequest_SimpleSuccess() {
-        val handler = ListHandler()
-        val model = ResourceModel.builder().build()
+    @AfterAll
+    fun teardown() {
+        unmockkAll()
+    }
+
+    @ParameterizedTest
+    @MethodSource("listHandlerSuccessTestData")
+    fun handleRequest(testArgs: TestArgs) {
+        every {
+            proxy.injectCredentialsAndInvokeV2(
+                any<ListPartnershipsRequest>(),
+                any<Function<ListPartnershipsRequest, ListPartnershipsResponse>>()
+            )
+        } returns testArgs.apiResponse
+
         val request = ResourceHandlerRequest.builder<ResourceModel>()
-            .desiredResourceState(model)
+            .nextToken(testArgs.requestNextToken)
             .build()
-        val response = handler.handleRequest(proxy, request, null, logger)
-        Assertions.assertThat(response).isNotNull
-        Assertions.assertThat(response.status).isEqualTo(OperationStatus.SUCCESS)
-        Assertions.assertThat(response.callbackContext).isNull()
-        Assertions.assertThat(response.callbackDelaySeconds).isEqualTo(0)
-        Assertions.assertThat(response.resourceModel).isNull()
-        Assertions.assertThat(response.resourceModels).isNotNull
-        Assertions.assertThat(response.message).isNull()
-        Assertions.assertThat(response.errorCode).isNull()
+        val response = handler.handleRequest(request)
+
+        assertThat(response).isNotNull
+        assertThat(response.status).isEqualTo(OperationStatus.SUCCESS)
+        assertThat(response.callbackContext).isNull()
+        assertThat(response.callbackDelaySeconds).isEqualTo(0)
+        assertThat(response.resourceModel).isNull()
+        assertThat(response.resourceModels).isEqualTo(testArgs.expectedResourceModels)
+        assertThat(response.nextToken).isNull()
+        assertThat(response.message).isNull()
+        assertThat(response.errorCode).isNull()
+    }
+
+    private fun ListHandler.handleRequest(
+        request: ResourceHandlerRequest<ResourceModel>
+    ): ProgressEvent<ResourceModel, CallbackContext?> {
+        return this.handleRequest(proxy, request, CallbackContext(), logger)
+    }
+
+    data class TestArgs(
+        val testName: String,
+        val requestNextToken: String?,
+        val apiResponse: ListPartnershipsResponse,
+        val expectedResourceModels: List<ResourceModel>
+    )
+
+    companion object {
+        @JvmStatic
+        fun listHandlerSuccessTestData() = listOf(
+            TestArgs(
+                testName = "List partnerships with no nextToken and single existing partnership returns one partnership.",
+                requestNextToken = null,
+                apiResponse = TEST_LIST_PARTNERSHIPS_RESPONSE_WITH_ONE_PARTNERSHIP_WITH_ALL_FIELDS,
+                expectedResourceModels = listOf(TEST_LIST_PARTNERSHIPS_RESPONSE_RESOURCE_MODEL_WITH_ALL_FIELDS)
+            )
+        )
     }
 }

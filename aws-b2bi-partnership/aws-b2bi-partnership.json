@@ -114,12 +114,14 @@
     "create": {
       "permissions": [
         "b2bi:CreatePartnership",
-        "b2bi:TagResource"
+        "b2bi:TagResource",
+        "s3:PutObject"
       ]
     },
     "read": {
       "permissions": [
-        "b2bi:GetPartnership"
+        "b2bi:GetPartnership",
+        "b2bi:ListTagsForResource"
       ]
     },
     "update": {
