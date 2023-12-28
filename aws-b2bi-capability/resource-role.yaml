@@ -38,7 +38,7 @@ Resources:
                 - "b2bi:TagResource"
                 - "b2bi:UntagResource"
                 - "b2bi:UpdateCapability"
-                - "events:DescribeRule"
+                - "events:ListRules"
                 - "events:PutRule"
                 - "events:PutTargets"
                 - "logs:CreateLogDelivery"
