@@ -1,21 +1,36 @@
 package software.amazon.b2bi.transformer
 
-import com.google.common.collect.Lists
-import software.amazon.awssdk.awscore.AwsRequest
-import software.amazon.awssdk.awscore.AwsResponse
 import software.amazon.awssdk.awscore.exception.AwsServiceException
-import software.amazon.awssdk.services.b2bi.model.*
+import software.amazon.awssdk.services.b2bi.model.AccessDeniedException
+import software.amazon.awssdk.services.b2bi.model.ConflictException
+import software.amazon.awssdk.services.b2bi.model.CreateTransformerRequest
+import software.amazon.awssdk.services.b2bi.model.DeleteTransformerRequest
+import software.amazon.awssdk.services.b2bi.model.GetTransformerRequest
+import software.amazon.awssdk.services.b2bi.model.GetTransformerResponse
+import software.amazon.awssdk.services.b2bi.model.InternalServerException
+import software.amazon.awssdk.services.b2bi.model.ListTransformersRequest
+import software.amazon.awssdk.services.b2bi.model.ListTransformersResponse
 import software.amazon.awssdk.services.b2bi.model.ResourceNotFoundException
-import software.amazon.awssdk.services.b2bi.model.X12Details
+import software.amazon.awssdk.services.b2bi.model.ServiceQuotaExceededException
+import software.amazon.awssdk.services.b2bi.model.TagResourceRequest
+import software.amazon.awssdk.services.b2bi.model.ThrottlingException
+import software.amazon.awssdk.services.b2bi.model.UntagResourceRequest
+import software.amazon.awssdk.services.b2bi.model.UpdateTransformerRequest
+import software.amazon.awssdk.services.b2bi.model.ValidationException
 import software.amazon.b2bi.transformer.TagHelper.toSdkTag
-import software.amazon.cloudformation.exceptions.*
-import java.util.*
-import java.util.stream.Collectors
-import java.util.stream.Stream
-import software.amazon.b2bi.transformer.EdiType as ResourceEdi
+import software.amazon.cloudformation.exceptions.BaseHandlerException
+import software.amazon.cloudformation.exceptions.CfnAccessDeniedException
+import software.amazon.cloudformation.exceptions.CfnAlreadyExistsException
+import software.amazon.cloudformation.exceptions.CfnGeneralServiceException
+import software.amazon.cloudformation.exceptions.CfnInvalidRequestException
+import software.amazon.cloudformation.exceptions.CfnNotFoundException
+import software.amazon.cloudformation.exceptions.CfnServiceInternalErrorException
+import software.amazon.cloudformation.exceptions.CfnServiceLimitExceededException
+import software.amazon.cloudformation.exceptions.CfnThrottlingException
 import software.amazon.awssdk.services.b2bi.model.EdiType as SdkEdi
-import software.amazon.b2bi.transformer.X12Details as ResourceX12
 import software.amazon.awssdk.services.b2bi.model.X12Details as SdkX12
+import software.amazon.b2bi.transformer.EdiType as ResourceEdi
+import software.amazon.b2bi.transformer.X12Details as ResourceX12
 
 /**
  * This class is a centralized placeholder for
@@ -53,7 +68,7 @@ object Translator {
 
     /**
      * Translates resource object from sdk into a resource model
-     * @param awsResponse the aws service describe resource response
+     * @param response the aws service describe resource response
      * @return model resource model
      */
     fun translateFromReadResponse(response: GetTransformerResponse): ResourceModel {
@@ -114,7 +129,7 @@ object Translator {
 
     /**
      * Translates resource objects from sdk into a resource model (primary identifier only)
-     * @param awsResponse the aws service describe resource response
+     * @param response the aws service describe resource response
      * @return list of resource models
      */
     fun translateFromListResponse(response: ListTransformersResponse): List<ResourceModel> {

@@ -38,6 +38,7 @@ class CreateHandlerTest : AbstractTestBase() {
         proxyClient = mockProxy(proxy, b2BiClient)
     }
 
+    @AfterEach
     fun reset() {
         clearAllMocks()
     }
