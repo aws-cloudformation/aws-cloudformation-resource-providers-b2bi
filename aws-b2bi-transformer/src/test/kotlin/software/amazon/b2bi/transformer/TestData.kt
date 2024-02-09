@@ -6,6 +6,7 @@ import software.amazon.awssdk.services.b2bi.model.GetTransformerResponse
 import software.amazon.awssdk.services.b2bi.model.ListTransformersResponse
 import software.amazon.awssdk.services.b2bi.model.ListTagsForResourceResponse
 import software.amazon.awssdk.services.b2bi.model.Logging
+import software.amazon.awssdk.services.b2bi.model.TransformerStatus
 import software.amazon.awssdk.services.b2bi.model.TransformerSummary
 import software.amazon.awssdk.services.b2bi.model.UpdateTransformerResponse
 import software.amazon.b2bi.transformer.TagHelper.toSdkTag
@@ -22,7 +23,7 @@ val TEST_X12: X12Details = X12Details.builder().transactionSet(TEST_TRANSACTION_
 const val TEST_NAME  = "Test transformer name"
 const val TEST_FILE_FORMAT = "JSON"
 const val TEST_MAPPING_TEMPLATE = "test mapping template"
-const val TEST_TRANSFORMER_STATUS = "active"
+val TEST_TRANSFORMER_STATUS = TransformerStatus.INACTIVE.toString()
 val TEST_RESOURCE_EDI_TYPE: EdiType = EdiType.builder().x12Details(TEST_X12).build()
 val TEST_SDK_EDI_TYPE = TEST_RESOURCE_EDI_TYPE.translateToSdkEdi()
 const val TEST_TRANSFORMER_ID = "t-12345678901234567"
@@ -48,6 +49,7 @@ val TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_REQUIRED_FIELDS = Resour
     .fileFormat(TEST_FILE_FORMAT)
     .mappingTemplate(TEST_MAPPING_TEMPLATE)
     .ediType(TEST_RESOURCE_EDI_TYPE)
+    .status(TEST_TRANSFORMER_STATUS)
     .tags(emptyList())
     .createdAt(TEST_INSTANT.toString())
     .modifiedAt(TEST_INSTANT.toString())

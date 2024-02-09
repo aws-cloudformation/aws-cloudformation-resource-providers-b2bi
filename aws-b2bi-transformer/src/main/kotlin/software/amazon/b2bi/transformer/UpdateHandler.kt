@@ -1,12 +1,9 @@
 package software.amazon.b2bi.transformer
 
-import software.amazon.awssdk.awscore.AwsResponse
 import software.amazon.awssdk.awscore.exception.AwsServiceException
-import software.amazon.awssdk.core.SdkClient
 import software.amazon.awssdk.services.b2bi.B2BiClient
 import software.amazon.awssdk.services.b2bi.model.UpdateTransformerRequest
 import software.amazon.awssdk.services.b2bi.model.UpdateTransformerResponse
-import software.amazon.b2bi.transformer.Translator.translateToResourceEdi
 import software.amazon.b2bi.transformer.TagHelper.convertToList
 import software.amazon.b2bi.transformer.TagHelper.generateTagsToAdd
 import software.amazon.b2bi.transformer.TagHelper.generateTagsToRemove
@@ -16,8 +13,12 @@ import software.amazon.b2bi.transformer.TagHelper.shouldUpdateTags
 import software.amazon.b2bi.transformer.TagHelper.tagResource
 import software.amazon.b2bi.transformer.TagHelper.untagResource
 import software.amazon.b2bi.transformer.Translator.toCfnException
-import software.amazon.cloudformation.exceptions.CfnGeneralServiceException
-import software.amazon.cloudformation.proxy.*
+import software.amazon.b2bi.transformer.Translator.translateToResourceEdi
+import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
+import software.amazon.cloudformation.proxy.Logger
+import software.amazon.cloudformation.proxy.ProgressEvent
+import software.amazon.cloudformation.proxy.ProxyClient
+import software.amazon.cloudformation.proxy.ResourceHandlerRequest
 
 class UpdateHandler : BaseHandlerStd() {
     private lateinit var logger: Logger
@@ -94,5 +95,4 @@ class UpdateHandler : BaseHandlerStd() {
     companion object {
         private const val OPERATION = "AWS-B2BI-Transformer::Update"
     }
-
 }

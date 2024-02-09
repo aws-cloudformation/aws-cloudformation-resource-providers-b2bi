@@ -5,6 +5,8 @@ import software.amazon.cloudformation.proxy.*
 import software.amazon.awssdk.services.b2bi.B2BiClient
 import software.amazon.awssdk.services.b2bi.model.CreateTransformerRequest
 import software.amazon.awssdk.services.b2bi.model.CreateTransformerResponse
+import software.amazon.awssdk.services.b2bi.model.TransformerStatus
+import software.amazon.awssdk.services.b2bi.model.UpdateTransformerRequest
 import software.amazon.b2bi.transformer.TagHelper.convertToList
 import software.amazon.b2bi.transformer.TagHelper.getNewDesiredTags
 import software.amazon.b2bi.transformer.Translator.toCfnException
@@ -30,10 +32,12 @@ class CreateHandler : BaseHandlerStd() {
                 proxy.initiate(OPERATION, proxyClient, progress.resourceModel, progress.callbackContext)
                     .translateToServiceRequest(Translator::translateToCreateRequest)
                     .makeServiceCall { awsRequest, client -> createTransformer(awsRequest, client, resourceModel) }
+                    .stabilize { _, _, client, resourceModel, _ -> stabilizeTransformer(resourceModel, client) }
                     .progress()
             }
             .then { progress -> ProgressEvent.defaultSuccessHandler(progress.resourceModel) }
     }
+
     private fun createTransformer(
         request: CreateTransformerRequest,
         proxyClient: ProxyClient<B2BiClient>,
@@ -48,10 +52,33 @@ class CreateHandler : BaseHandlerStd() {
             transformerId = response.transformerId()
             transformerArn = response.transformerArn()
             createdAt = response.createdAt().toString()
-            status = response.status().toString()
         }
         logger.log("Successfully created ${ResourceModel.TYPE_NAME} ${resourceModel.transformerId}")
         return response
+    }
+
+    private fun stabilizeTransformer(
+        resourceModel: ResourceModel,
+        proxyClient: ProxyClient<B2BiClient>,
+    ): Boolean {
+        val requestedTransformerStatus = resourceModel.status
+        if (requestedTransformerStatus != TransformerStatus.ACTIVE.toString()) {
+            resourceModel.apply {
+                status = TransformerStatus.INACTIVE.toString()
+            }
+            return true
+        }
+
+        val updateTransformerRequest = Translator.translateToUpdateRequest(resourceModel)
+        val updateTransformerResponse = try {
+            proxyClient.injectCredentialsAndInvokeV2(updateTransformerRequest, proxyClient.client()::updateTransformer)
+        } catch (e: AwsServiceException) {
+            throw e.toCfnException()
+        }
+        resourceModel.apply {
+            status = updateTransformerResponse.statusAsString()
+        }
+        return true
     }
 
     companion object {
