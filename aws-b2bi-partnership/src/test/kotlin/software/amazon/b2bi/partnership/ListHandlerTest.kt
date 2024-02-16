@@ -3,7 +3,6 @@ package software.amazon.b2bi.partnership
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import software.amazon.awssdk.services.b2bi.B2BiClient
 import software.amazon.awssdk.services.b2bi.model.ListPartnershipsRequest
 import software.amazon.awssdk.services.b2bi.model.ListPartnershipsResponse
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
@@ -28,15 +26,11 @@ class ListHandlerTest {
     private lateinit var proxy: AmazonWebServicesClientProxy
     @MockK
     private lateinit var logger: Logger
-    @MockK
-    private lateinit var b2BiClient: B2BiClient
-    private var handler = ListHandler()
+    private val handler = ListHandler()
 
     @BeforeAll
     fun setupOnce() {
         MockKAnnotations.init(this, relaxed = true)
-        mockkObject(ClientBuilder)
-        every { ClientBuilder.getClient() } returns b2BiClient
     }
 
     @AfterAll

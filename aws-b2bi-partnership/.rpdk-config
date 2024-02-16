@@ -2,7 +2,7 @@
     "artifact_type": "RESOURCE",
     "typeName": "AWS::B2BI::Partnership",
     "language": "java",
-    "runtime": "java8",
+    "runtime": "java17",
     "entrypoint": "software.amazon.b2bi.partnership.HandlerWrapper::handleRequest",
     "testEntrypoint": "software.amazon.b2bi.partnership.HandlerWrapper::testEntrypoint",
     "settings": {
