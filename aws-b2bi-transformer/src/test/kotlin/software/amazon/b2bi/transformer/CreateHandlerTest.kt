@@ -6,23 +6,25 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
-import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import org.mockito.Mock
-import org.mockito.Mockito.*
-import org.mockito.junit.jupiter.MockitoExtension
 import software.amazon.awssdk.awscore.exception.AwsServiceException
-import software.amazon.awssdk.core.SdkClient
 import software.amazon.awssdk.services.b2bi.B2BiClient
 import software.amazon.awssdk.services.b2bi.model.CreateTransformerRequest
 import software.amazon.awssdk.services.b2bi.model.CreateTransformerResponse
 import software.amazon.cloudformation.exceptions.CfnGeneralServiceException
-import software.amazon.cloudformation.proxy.*
+import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
+import software.amazon.cloudformation.proxy.OperationStatus
+import software.amazon.cloudformation.proxy.ProgressEvent
+import software.amazon.cloudformation.proxy.ProxyClient
+import software.amazon.cloudformation.proxy.ResourceHandlerRequest
 import java.time.Duration
-import java.util.function.Supplier
 
 @TestInstance(Lifecycle.PER_CLASS)
 class CreateHandlerTest : AbstractTestBase() {

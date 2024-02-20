@@ -3,39 +3,34 @@ package software.amazon.b2bi.transformer
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockkObject
 import io.mockk.unmockkAll
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.*
-import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import org.mockito.Mock
-import org.mockito.Mockito.mock
-import org.mockito.junit.jupiter.MockitoExtension
-import software.amazon.awssdk.services.b2bi.B2BiClient
 import software.amazon.awssdk.services.b2bi.model.ListTransformersRequest
 import software.amazon.awssdk.services.b2bi.model.ListTransformersResponse
-import software.amazon.cloudformation.proxy.*
+import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
+import software.amazon.cloudformation.proxy.Logger
+import software.amazon.cloudformation.proxy.OperationStatus
+import software.amazon.cloudformation.proxy.ProgressEvent
+import software.amazon.cloudformation.proxy.ResourceHandlerRequest
 import java.util.function.Function
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(Lifecycle.PER_CLASS)
 class ListHandlerTest {
     @MockK
     private lateinit var proxy: AmazonWebServicesClientProxy
-
     @MockK
     private lateinit var logger: Logger
-    @MockK
-    private lateinit var b2BiClient: B2BiClient
-    private var handler = ListHandler()
+    private val handler = ListHandler()
 
     @BeforeAll
     fun setupOnce() {
         MockKAnnotations.init(this, relaxed = true)
-        mockkObject(ClientBuilder)
-        every { ClientBuilder.getClient() } returns b2BiClient
     }
 
     @AfterAll
