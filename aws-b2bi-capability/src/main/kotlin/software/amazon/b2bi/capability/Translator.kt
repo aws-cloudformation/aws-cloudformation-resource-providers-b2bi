@@ -30,6 +30,7 @@ import software.amazon.cloudformation.exceptions.CfnNotFoundException
 import software.amazon.cloudformation.exceptions.CfnServiceInternalErrorException
 import software.amazon.cloudformation.exceptions.CfnServiceLimitExceededException
 import software.amazon.cloudformation.exceptions.CfnThrottlingException
+import java.time.Instant
 import java.util.*
 import java.util.stream.Collectors
 import java.util.stream.Stream
@@ -84,16 +85,20 @@ object Translator {
      */
     fun translateFromReadResponse(response: GetCapabilityResponse): ResourceModel {
         return ResourceModel.builder()
-            .capabilityId(response.capabilityId().ifEmpty { null })
-            .capabilityArn(response.capabilityArn().ifEmpty { null })
-            .name(response.name().ifEmpty { null })
-            .type(response.typeAsString().ifEmpty { null })
-            .configuration(response.configuration().toResourceCapabilityConfiguration())
+            .capabilityId(response.capabilityId().emptyToNull())
+            .capabilityArn(response.capabilityArn().emptyToNull())
+            .name(response.name().emptyToNull())
+            .type(response.typeAsString().emptyToNull())
+            .configuration(response.configuration()?.toResourceCapabilityConfiguration())
             .instructionsDocuments(response.instructionsDocuments()?.map { it.toResourceS3Location() })
-            .createdAt(response.createdAt().toString().ifEmpty { null })
-            .modifiedAt(response.modifiedAt().toString().ifEmpty { null })
+            .createdAt(response.createdAt().emptyToNull())
+            .modifiedAt(response.modifiedAt().emptyToNull())
             .build()
     }
+
+    private fun String?.emptyToNull() = if (this.isNullOrEmpty()) null else this
+
+    private fun Instant?.emptyToNull() = if (this == null) null else this.toString()
 
     /**
      * Request to delete a resource

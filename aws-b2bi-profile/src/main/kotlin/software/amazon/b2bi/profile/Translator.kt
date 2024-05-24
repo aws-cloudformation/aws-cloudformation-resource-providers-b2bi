@@ -27,6 +27,7 @@ import software.amazon.cloudformation.exceptions.CfnNotFoundException
 import software.amazon.cloudformation.exceptions.CfnServiceInternalErrorException
 import software.amazon.cloudformation.exceptions.CfnServiceLimitExceededException
 import software.amazon.cloudformation.exceptions.CfnThrottlingException
+import java.time.Instant
 
 /**
  * This class is a centralized placeholder for
@@ -70,18 +71,22 @@ object Translator {
      */
     fun translateFromReadResponse(response: GetProfileResponse): ResourceModel {
         return ResourceModel.builder()
-            .profileId(response.profileId().ifEmpty { null })
-            .profileArn(response.profileArn().ifEmpty { null })
-            .name(response.name().ifEmpty { null })
-            .email(response.email().ifEmpty { null })
-            .phone(response.phone().ifEmpty { null })
-            .businessName(response.businessName().ifEmpty { null })
-            .logging(response.loggingAsString().ifEmpty { null })
-            .logGroupName(response.logGroupName().ifEmpty { null })
-            .createdAt(response.createdAt().toString().ifEmpty { null })
-            .modifiedAt(response.modifiedAt().toString().ifEmpty { null })
+            .profileId(response.profileId().emptyToNull())
+            .profileArn(response.profileArn().emptyToNull())
+            .name(response.name().emptyToNull())
+            .email(response.email()?.emptyToNull())
+            .phone(response.phone().emptyToNull())
+            .businessName(response.businessName().emptyToNull())
+            .logging(response.loggingAsString().emptyToNull())
+            .logGroupName(response.logGroupName().emptyToNull())
+            .createdAt(response.createdAt().emptyToNull())
+            .modifiedAt(response.modifiedAt().emptyToNull())
             .build()
     }
+
+    private fun String?.emptyToNull() = if (this.isNullOrEmpty()) null else this
+
+    private fun Instant?.emptyToNull() = if (this == null) null else this.toString()
 
     /**
      * Request to delete a resource
