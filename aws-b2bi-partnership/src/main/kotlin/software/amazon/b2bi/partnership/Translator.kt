@@ -31,6 +31,7 @@ import software.amazon.cloudformation.exceptions.CfnNotFoundException
 import software.amazon.cloudformation.exceptions.CfnServiceInternalErrorException
 import software.amazon.cloudformation.exceptions.CfnServiceLimitExceededException
 import software.amazon.cloudformation.exceptions.CfnThrottlingException
+import java.time.Instant
 import java.util.*
 import java.util.stream.Collectors
 import java.util.stream.Stream
@@ -77,18 +78,22 @@ object Translator {
      */
     fun translateFromReadResponse(response: GetPartnershipResponse): ResourceModel {
         return ResourceModel.builder()
-            .profileId(response.profileId().ifEmpty { null })
-            .partnershipId(response.partnershipId().ifEmpty { null })
-            .partnershipArn(response.partnershipArn().ifEmpty { null })
-            .name(response.name().ifEmpty { null })
-            .email(response.email().ifEmpty { null })
-            .phone(response.phone().ifEmpty { null })
+            .profileId(response.profileId().emptyToNull())
+            .partnershipId(response.partnershipId().emptyToNull())
+            .partnershipArn(response.partnershipArn().emptyToNull())
+            .name(response.name().emptyToNull())
+            .email(response.email().emptyToNull())
+            .phone(response.phone().emptyToNull())
             .capabilities(response.capabilities())
-            .tradingPartnerId(response.tradingPartnerId().ifEmpty { null })
-            .createdAt(response.createdAt().toString().ifEmpty { null })
-            .modifiedAt(response.modifiedAt().toString().ifEmpty { null })
+            .tradingPartnerId(response.tradingPartnerId().emptyToNull())
+            .createdAt(response.createdAt().emptyToNull())
+            .modifiedAt(response.modifiedAt().emptyToNull())
             .build()
     }
+
+    private fun String?.emptyToNull() = if (this.isNullOrEmpty()) null else this
+
+    private fun Instant?.emptyToNull() = if (this == null) null else this.toString()
 
     /**
      * Request to delete a resource

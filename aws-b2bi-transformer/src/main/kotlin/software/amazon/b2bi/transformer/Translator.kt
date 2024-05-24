@@ -5,6 +5,7 @@ import software.amazon.awssdk.services.b2bi.model.AccessDeniedException
 import software.amazon.awssdk.services.b2bi.model.ConflictException
 import software.amazon.awssdk.services.b2bi.model.CreateTransformerRequest
 import software.amazon.awssdk.services.b2bi.model.DeleteTransformerRequest
+import software.amazon.awssdk.services.b2bi.model.FileFormat
 import software.amazon.awssdk.services.b2bi.model.GetTransformerRequest
 import software.amazon.awssdk.services.b2bi.model.GetTransformerResponse
 import software.amazon.awssdk.services.b2bi.model.InternalServerException
@@ -14,6 +15,7 @@ import software.amazon.awssdk.services.b2bi.model.ResourceNotFoundException
 import software.amazon.awssdk.services.b2bi.model.ServiceQuotaExceededException
 import software.amazon.awssdk.services.b2bi.model.TagResourceRequest
 import software.amazon.awssdk.services.b2bi.model.ThrottlingException
+import software.amazon.awssdk.services.b2bi.model.TransformerStatus
 import software.amazon.awssdk.services.b2bi.model.UntagResourceRequest
 import software.amazon.awssdk.services.b2bi.model.UpdateTransformerRequest
 import software.amazon.awssdk.services.b2bi.model.ValidationException
@@ -27,6 +29,7 @@ import software.amazon.cloudformation.exceptions.CfnNotFoundException
 import software.amazon.cloudformation.exceptions.CfnServiceInternalErrorException
 import software.amazon.cloudformation.exceptions.CfnServiceLimitExceededException
 import software.amazon.cloudformation.exceptions.CfnThrottlingException
+import java.time.Instant
 import software.amazon.awssdk.services.b2bi.model.EdiType as SdkEdi
 import software.amazon.awssdk.services.b2bi.model.X12Details as SdkX12
 import software.amazon.b2bi.transformer.EdiType as ResourceEdi
@@ -73,18 +76,26 @@ object Translator {
      */
     fun translateFromReadResponse(response: GetTransformerResponse): ResourceModel {
         return ResourceModel.builder()
-            .transformerId(response.transformerId().ifEmpty { null })
-            .transformerArn(response.transformerArn().ifEmpty { null })
-            .name(response.name().ifEmpty { null })
-            .fileFormat(response.fileFormat().toString().ifEmpty { null })
-            .mappingTemplate(response.mappingTemplate().ifEmpty { null })
-            .sampleDocument(response.sampleDocument().ifEmpty { null })
-            .ediType(response.ediType().translateToResourceEdi())
-            .status(response.status().toString().ifEmpty { null })
-            .createdAt(response.createdAt().toString().ifEmpty { null })
-            .modifiedAt(if (response.modifiedAt() != null) response.modifiedAt().toString() else null)
+            .transformerId(response.transformerId().emptyToNull())
+            .transformerArn(response.transformerArn().emptyToNull())
+            .name(response.name().emptyToNull())
+            .fileFormat(response.fileFormat().emptyToNull())
+            .mappingTemplate(response.mappingTemplate().emptyToNull())
+            .sampleDocument(response.sampleDocument().emptyToNull())
+            .ediType(response.ediType()?.translateToResourceEdi())
+            .status(response.status().emptyToNull())
+            .createdAt(response.createdAt().emptyToNull())
+            .modifiedAt(response.modifiedAt().emptyToNull())
             .build()
     }
+
+    private fun String?.emptyToNull() = if (this.isNullOrEmpty()) null else this
+
+    private fun Instant?.emptyToNull() = if (this == null) null else this.toString()
+
+    private fun FileFormat?.emptyToNull() =  if (this == null) null else this.toString()
+
+    private fun TransformerStatus?.emptyToNull() = if (this == null) null else this.toString()
 
     /**
      * Request to delete a resource
