@@ -91,6 +91,7 @@
     }
   },
   "required": [
+    "Capabilities",
     "Email",
     "Name",
     "ProfileId"

@@ -41,7 +41,7 @@ Properties:
 
 #### Capabilities
 
-_Required_: No
+_Required_: Yes
 
 _Type_: List of String
 
