@@ -1,0 +1,26 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation template to create inactive AWS::B2BI::Transformer resource.
+Resources:
+  Transformer:
+    Type: AWS::B2BI::Transformer
+    Properties:
+      Name:
+        Fn::Sub:
+          - CFN-Canary-Transformer-Inactive-${UUID}
+          - UUID:
+              Fn::Select:
+                - 2
+                - Fn::Split:
+                    - /
+                    - Ref: AWS::StackId
+      FileFormat: JSON
+      MappingTemplate: "Mapping template"
+      EdiType:
+        X12Details:
+          TransactionSet: X12_214
+          Version: VERSION_4010
+      Status: inactive
+      Tags:
+        - Key: resourceKey
+          Value: resourceValue

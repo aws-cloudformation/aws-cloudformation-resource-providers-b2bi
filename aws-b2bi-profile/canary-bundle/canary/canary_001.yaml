@@ -1,0 +1,23 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation template to create AWS::B2BI::Profile resource.
+Resources:
+  Profile:
+    Type: AWS::B2BI::Profile
+    Properties:
+      BusinessName: CFN Canary Profile Inc
+      Email: cfn-canary-profile@amazon.com
+      Logging: ENABLED
+      Name:
+        Fn::Sub:
+          - CFN Canary Profile ${UUID}
+          - UUID:
+              Fn::Select:
+                - 2
+                - Fn::Split:
+                  - /
+                  - Ref: AWS::StackId
+      Phone: 1234567890
+      Tags:
+        - Key: resourceKey
+          Value: resourceValue

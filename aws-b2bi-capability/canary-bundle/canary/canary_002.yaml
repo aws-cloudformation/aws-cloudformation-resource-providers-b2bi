@@ -1,0 +1,41 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation template to update AWS::B2BI::Capability resource with a legacy Transformer Config.
+Resources:
+  Capability:
+    Type: AWS::B2BI::Capability
+    Properties:
+      Name:
+        Fn::Sub:
+          - Updated CFN Canary Capability ${UUID}
+          - UUID:
+              Fn::Select:
+                - 2
+                - Fn::Split:
+                  - /
+                  - Ref: AWS::StackId
+      Type: edi
+      Configuration:
+        Edi:
+          Type:
+            X12Details:
+              TransactionSet: X12_214
+              Version: VERSION_4010
+          InputLocation:
+            BucketName:
+              Fn::ImportValue: CFNB2BIS3BucketName
+            Key: inputs/
+          OutputLocation:
+            BucketName:
+              Fn::ImportValue: CFNB2BIS3BucketName
+            Key: outputs/
+          TransformerId:
+            Fn::ImportValue: CFNB2BITransformerId
+          CapabilityDirection: INBOUND
+      InstructionsDocuments:
+        - BucketName:
+            Fn::ImportValue: CFNB2BIS3BucketName
+          Key: instructions/instruction-document.pdf
+      Tags:
+        - Key: updatedResourceKey
+          Value: updatedResourceValue

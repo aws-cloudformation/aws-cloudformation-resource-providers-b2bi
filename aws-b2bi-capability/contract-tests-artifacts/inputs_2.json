@@ -1,0 +1,32 @@
+{
+  "CreateInputs": {
+    "Name": "CFN Contract Test Capability {{uuid}}",
+    "Type": "edi",
+    "Configuration": {
+      "Edi": {
+        "Type": {
+          "X12Details": {
+            "TransactionSet": "X12_214",
+            "Version": "VERSION_4010"
+          }
+        },
+        "InputLocation": {
+          "BucketName": "{{awsb2bicapabilitycto1}}",
+          "Key": "inputs/"
+        },
+        "OutputLocation": {
+          "BucketName": "{{awsb2bicapabilitycto1}}",
+          "Key": "outputs/"
+        },
+        "TransformerId": "{{awsb2bicapabilitycto2}}"
+      }
+    }
+  },
+  "PatchInputs": [
+    {
+      "op": "replace",
+      "path": "/Name",
+      "value": "Updated CFN Contract Test Capability {{uuid}}"
+    }
+  ]
+}

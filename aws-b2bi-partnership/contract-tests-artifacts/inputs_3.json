@@ -1,0 +1,64 @@
+{
+  "CreateInputs": {
+    "ProfileId": "{{awsb2bipartnershipcto1}}",
+    "Name": "CFN Contract Test Partnership Outbound {{uuid}}",
+    "Email": "cfn-contract-test-partnership-outbound@amazon.com",
+    "Phone": "1234567890",
+    "Capabilities": [
+      "{{awsb2bipartnershipcto3}}"
+    ],
+    "CapabilityOptions": {
+      "OutboundEdi": {
+        "X12": {
+          "Common": {
+            "Delimiters": {
+              "ComponentSeparator": ":",
+              "DataElementSeparator": "*",
+              "SegmentTerminator": "~"
+            },
+            "ValidateEdi": false,
+            "FunctionalGroupHeaders": {
+              "ApplicationSenderCode": "ASC",
+              "ApplicationReceiverCode": "ARC",
+              "ResponsibleAgencyCode": "X"
+            },
+            "InterchangeControlHeaders": {
+              "SenderIdQualifier": "01",
+              "SenderId": "123456789012345",
+              "ReceiverIdQualifier": "01",
+              "ReceiverId": "098765432109876",
+              "AcknowledgmentRequestedCode": "0",
+              "UsageIndicatorCode": "T"
+            }
+          }
+        }
+      }
+    },
+    "Tags": [
+      {
+        "Key": "apple",
+        "Value": "red"
+      },
+      {
+        "Key": "berry",
+        "Value": "blue"
+      }
+    ]
+  },
+  "PatchInputs": [
+    {
+      "op": "replace",
+      "path": "/Name",
+      "value": "Updated CFN Contract Test Partnership Outbound {{uuid}}"
+    },
+    {
+      "op": "replace",
+      "path": "/Tags/0/Value",
+      "value": "green"
+    },
+    {
+      "op": "remove",
+      "path": "/Tags/1"
+    }
+  ]
+}

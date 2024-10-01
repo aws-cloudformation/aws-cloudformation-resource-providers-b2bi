@@ -1,0 +1,35 @@
+{
+  "CreateInputs": {
+    "BusinessName": "CFN Contract Test Inc",
+    "Email": "cfn-contract-test@amazon.com",
+    "Logging": "ENABLED",
+    "Name": "CFN Contract Test Profile {{uuid}}",
+    "Phone": "1234567890",
+    "Tags": [
+      {
+        "Key": "apple",
+        "Value": "red"
+      },
+      {
+        "Key": "berry",
+        "Value": "blue"
+      }
+    ]
+  },
+  "PatchInputs": [
+    {
+      "op": "replace",
+      "path": "/BusinessName",
+      "value": "Updated CFN Contract Test Inc"
+    },
+    {
+      "op": "replace",
+      "path": "/Tags/0/Value",
+      "value": "green"
+    },
+    {
+      "op": "remove",
+      "path": "/Tags/1"
+    }
+  ]
+}

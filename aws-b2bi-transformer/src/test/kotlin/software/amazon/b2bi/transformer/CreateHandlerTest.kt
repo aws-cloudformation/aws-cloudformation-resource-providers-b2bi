@@ -50,9 +50,7 @@ class CreateHandlerTest : AbstractTestBase() {
         unmockkAll()
     }
 
-    @ParameterizedTest
-    @MethodSource("createHandlerSuccessTestData")
-    fun handleRequest(testArgs: TestArgs) {
+    private fun handleRequest(testArgs: TestArgs) {
         every { b2BiClient.createTransformer(any<CreateTransformerRequest>()) } returns testArgs.apiResponse
 
         val request = ResourceHandlerRequest.builder<ResourceModel>()
@@ -69,6 +67,18 @@ class CreateHandlerTest : AbstractTestBase() {
         assertThat(response.errorCode).isNull()
     }
 
+    @ParameterizedTest
+    @MethodSource("createHandlerSuccessLegacyTransformerTestData")
+    fun handleLegacyRequest(testArgs: TestArgs) = handleRequest(testArgs)
+
+    @ParameterizedTest
+    @MethodSource("createHandlerSuccessInboundTransformerTestData")
+    fun handleInboundRequest(testArgs: TestArgs) = handleRequest(testArgs)
+
+    @ParameterizedTest
+    @MethodSource("createHandlerSuccessOutboundTransformerTestData")
+    fun handleOutboundRequest(testArgs: TestArgs) = handleRequest(testArgs)
+
     @Test
     fun handleRequest_throwsException() {
         every {
@@ -76,7 +86,7 @@ class CreateHandlerTest : AbstractTestBase() {
         } throws AwsServiceException.builder().build()
 
         val request = ResourceHandlerRequest.builder<ResourceModel>()
-            .desiredResourceState(TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_ALL_FIELDS)
+            .desiredResourceState(TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_ALL_LEGACY_FIELDS)
             .build()
         assertThatThrownBy { handler.handleRequest(request) }
             .isInstanceOf(CfnGeneralServiceException::class.java)
@@ -97,22 +107,70 @@ class CreateHandlerTest : AbstractTestBase() {
 
     companion object {
         @JvmStatic
-        fun createHandlerSuccessTestData() = listOf(
+        fun createHandlerSuccessLegacyTransformerTestData() = listOf(
             TestArgs(
-                testName = "Create transformer with all fields.",
-                requestResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_ALL_FIELDS,
-                apiResponse = TEST_CREATE_TRANSFORMER_RESPONSE_WITH_ALL_FIELDS,
-                expectedResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_ALL_FIELDS.toBuilder()
+                testName = "Create transformer with all legacy fields.",
+                requestResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_ALL_LEGACY_FIELDS,
+                apiResponse = TEST_CREATE_TRANSFORMER_RESPONSE_WITH_ALL_LEGACY_FIELDS,
+                expectedResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_ALL_LEGACY_FIELDS.toBuilder()
                     .transformerId(TEST_TRANSFORMER_ID)
                     .transformerArn(TEST_TRANSFORMER_ARN)
                     .status(TEST_TRANSFORMER_STATUS)
                     .build()
             ),
             TestArgs(
-                testName = "Create transformer with only required fields.",
-                requestResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_REQUIRED_FIELDS,
-                apiResponse = TEST_CREATE_TRANSFORMER_RESPONSE_WITH_REQUIRED_FIELDS,
-                expectedResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_REQUIRED_FIELDS.toBuilder()
+                testName = "Create transformer with only required legacy fields.",
+                requestResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_REQUIRED_LEGACY_FIELDS,
+                apiResponse = TEST_CREATE_TRANSFORMER_RESPONSE_WITH_REQUIRED_LEGACY_FIELDS,
+                expectedResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_REQUIRED_LEGACY_FIELDS.toBuilder()
+                    .transformerId(TEST_TRANSFORMER_ID)
+                    .transformerArn(TEST_TRANSFORMER_ARN)
+                    .status(TEST_TRANSFORMER_STATUS)
+                    .build()
+            ),
+        )
+
+        @JvmStatic
+        fun createHandlerSuccessInboundTransformerTestData() = listOf(
+            TestArgs(
+                testName = "Create transformer with all inbound fields.",
+                requestResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_ALL_INBOUND_FIELDS,
+                apiResponse = TEST_CREATE_TRANSFORMER_RESPONSE_WITH_ALL_INBOUND_FIELDS,
+                expectedResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_ALL_INBOUND_FIELDS.toBuilder()
+                    .transformerId(TEST_TRANSFORMER_ID)
+                    .transformerArn(TEST_TRANSFORMER_ARN)
+                    .status(TEST_TRANSFORMER_STATUS)
+                    .build()
+            ),
+            TestArgs(
+                testName = "Create transformer with only required inbound fields.",
+                requestResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_REQUIRED_INBOUND_FIELDS,
+                apiResponse = TEST_CREATE_TRANSFORMER_RESPONSE_WITH_ALL_INBOUND_FIELDS,
+                expectedResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_REQUIRED_INBOUND_FIELDS.toBuilder()
+                    .transformerId(TEST_TRANSFORMER_ID)
+                    .transformerArn(TEST_TRANSFORMER_ARN)
+                    .status(TEST_TRANSFORMER_STATUS)
+                    .build()
+            ),
+        )
+
+        @JvmStatic
+        fun createHandlerSuccessOutboundTransformerTestData() = listOf(
+            TestArgs(
+                testName = "Create transformer with all outbound fields.",
+                requestResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_ALL_OUTBOUND_FIELDS,
+                apiResponse = TEST_CREATE_TRANSFORMER_RESPONSE_WITH_ALL_OUTBOUND_FIELDS,
+                expectedResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_ALL_OUTBOUND_FIELDS.toBuilder()
+                    .transformerId(TEST_TRANSFORMER_ID)
+                    .transformerArn(TEST_TRANSFORMER_ARN)
+                    .status(TEST_TRANSFORMER_STATUS)
+                    .build()
+            ),
+            TestArgs(
+                testName = "Create transformer with only required outbound fields.",
+                requestResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_REQUIRED_OUTBOUND_FIELDS,
+                apiResponse = TEST_CREATE_TRANSFORMER_RESPONSE_WITH_ALL_OUTBOUND_FIELDS,
+                expectedResourceModel = TEST_CREATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_REQUIRED_OUTBOUND_FIELDS.toBuilder()
                     .transformerId(TEST_TRANSFORMER_ID)
                     .transformerArn(TEST_TRANSFORMER_ARN)
                     .status(TEST_TRANSFORMER_STATUS)

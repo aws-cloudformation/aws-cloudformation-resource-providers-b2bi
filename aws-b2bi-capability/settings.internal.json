@@ -1,0 +1,7 @@
+{
+  "FasPolicyPath": {
+    "aws": "/policies/AuthRuntime/authNPolicy/cloudformation/aws-b2bi-capability.2023-11-30-18-40-58",
+    "aws-cn": "/policies/AuthRuntime/authNPolicy/cloudformation/aws-b2bi-capability.2023-11-30-18-40-58",
+    "aws-us-gov": "/policies/AuthRuntime/authNPolicy/cloudformation/aws-b2bi-capability.2023-11-30-18-40-58"
+  }
+}
