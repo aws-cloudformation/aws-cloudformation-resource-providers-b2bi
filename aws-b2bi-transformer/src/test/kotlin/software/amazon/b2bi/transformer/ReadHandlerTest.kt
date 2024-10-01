@@ -52,9 +52,7 @@ class ReadHandlerTest : AbstractTestBase() {
         unmockkAll()
     }
 
-    @ParameterizedTest
-    @MethodSource("readHandlerSuccessTestData")
-    fun handleRequest(testArgs: TestArgs) {
+    private fun handleRequest(testArgs: TestArgs) {
         every { b2BiClient.getTransformer(any<GetTransformerRequest>()) } returns testArgs.apiResponse
         every { b2BiClient.listTagsForResource(any<ListTagsForResourceRequest>()) } returns testArgs.apiTags
 
@@ -71,6 +69,18 @@ class ReadHandlerTest : AbstractTestBase() {
         assertThat(response.message).isNull()
         assertThat(response.errorCode).isNull()
     }
+
+    @ParameterizedTest
+    @MethodSource("readHandlerSuccessLegacyTransformerTestData")
+    fun handleLegacyRequest(testArgs: TestArgs) = handleRequest(testArgs)
+
+    @ParameterizedTest
+    @MethodSource("readHandlerSuccessInboundTransformerTestData")
+    fun handleInboundRequest(testArgs: TestArgs) = handleRequest(testArgs)
+
+    @ParameterizedTest
+    @MethodSource("readHandlerSuccessOutboundTransformerTestData")
+    fun handleOutboundRequest(testArgs: TestArgs) = handleRequest(testArgs)
 
     @Test
     fun handleRequest_throwsException() {
@@ -101,13 +111,35 @@ class ReadHandlerTest : AbstractTestBase() {
 
     companion object {
         @JvmStatic
-        fun readHandlerSuccessTestData() = listOf(
+        fun readHandlerSuccessLegacyTransformerTestData() = listOf(
             TestArgs(
-                testName = "Read transformer with all fields.",
+                testName = "Read transformer with all legacy fields.",
                 requestResourceModel = TEST_GET_TRANSFORMER_REQUEST_RESOURCE_MODEL,
-                apiResponse = TEST_GET_TRANSFORMER_RESPONSE_WITH_ALL_FIELDS,
+                apiResponse = TEST_GET_TRANSFORMER_RESPONSE_WITH_ALL_LEGACY_FIELDS,
                 apiTags = TEST_LIST_TAGS_FOR_RESOURCE_RESPONSE,
-                expectedResourceModel = TEST_GET_TRANSFORMER_RESPONSE_RESOURCE_MODEL_WITH_ALL_FIELDS
+                expectedResourceModel = TEST_GET_TRANSFORMER_RESPONSE_RESOURCE_MODEL_WITH_ALL_LEGACY_FIELDS
+            )
+        )
+
+        @JvmStatic
+        fun readHandlerSuccessInboundTransformerTestData() = listOf(
+            TestArgs(
+                testName = "Read transformer with all inbound fields.",
+                requestResourceModel = TEST_GET_INBOUND_TRANSFORMER_REQUEST_RESOURCE_MODEL,
+                apiResponse = TEST_GET_TRANSFORMER_RESPONSE_WITH_ALL_INBOUND_FIELDS,
+                apiTags = TEST_LIST_TAGS_FOR_RESOURCE_RESPONSE,
+                expectedResourceModel = TEST_GET_TRANSFORMER_RESPONSE_RESOURCE_MODEL_WITH_ALL_INBOUND_FIELDS
+            )
+        )
+
+        @JvmStatic
+        fun readHandlerSuccessOutboundTransformerTestData() = listOf(
+            TestArgs(
+                testName = "Read transformer with all outbound fields.",
+                requestResourceModel = TEST_GET_OUTBOUND_TRANSFORMER_REQUEST_RESOURCE_MODEL,
+                apiResponse = TEST_GET_TRANSFORMER_RESPONSE_WITH_ALL_OUTBOUND_FIELDS,
+                apiTags = TEST_LIST_TAGS_FOR_RESOURCE_RESPONSE,
+                expectedResourceModel = TEST_GET_TRANSFORMER_RESPONSE_RESOURCE_MODEL_WITH_ALL_OUTBOUND_FIELDS
             )
         )
     }

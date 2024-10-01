@@ -40,6 +40,7 @@ object TagHelper {
     fun getPreviouslyAttachedTags(handlerRequest: ResourceHandlerRequest<ResourceModel>): Map<String, String> {
         return getTags(
             handlerRequest.previousResourceTags,
+            handlerRequest.previousSystemTags,
             convertToMap(handlerRequest.previousResourceState.tags)
         )
     }
@@ -59,6 +60,7 @@ object TagHelper {
     fun getNewDesiredTags(handlerRequest: ResourceHandlerRequest<ResourceModel>): Map<String, String> {
         return getTags(
             handlerRequest.desiredResourceTags,
+            handlerRequest.systemTags,
             convertToMap(handlerRequest.desiredResourceState.tags)
         )
     }
@@ -106,14 +108,18 @@ object TagHelper {
         addedTags: Map<String, String>,
         logger: Logger
     ): ProgressEvent<ResourceModel, CallbackContext?> {
-        return proxy.initiate(TAG_OPERATION, proxyClient, resourceModel, callbackContext)
-            .translateToServiceRequest { model -> Translator.translateToTagResourceRequest(model, addedTags) }
-            .makeServiceCall { request, client ->
-                val response = proxy.injectCredentialsAndInvokeV2(request, client.client()::tagResource)
-                logger.log("Successfully tagged ${ResourceModel.TYPE_NAME} ${resourceModel.partnershipId}")
-                response
-            }
-            .progress()
+        return if (addedTags.isNotEmpty()) {
+            proxy.initiate(TAG_OPERATION, proxyClient, resourceModel, callbackContext)
+                .translateToServiceRequest { model -> Translator.translateToTagResourceRequest(model, addedTags) }
+                .makeServiceCall { request, client ->
+                    val response = proxy.injectCredentialsAndInvokeV2(request, client.client()::tagResource)
+                    logger.log("Successfully tagged ${ResourceModel.TYPE_NAME} ${resourceModel.partnershipId}")
+                    response
+                }
+                .progress()
+        } else {
+            ProgressEvent.progress(resourceModel, callbackContext)
+        }
     }
 
     /**
@@ -129,14 +135,18 @@ object TagHelper {
         removedTags: Set<String>,
         logger: Logger
     ): ProgressEvent<ResourceModel, CallbackContext?> {
-        return proxy.initiate(UNTAG_OPERATION, proxyClient, resourceModel, callbackContext)
-            .translateToServiceRequest { model -> Translator.translateToUntagResourceRequest(model, removedTags) }
-            .makeServiceCall { request, client ->
-                val response = proxy.injectCredentialsAndInvokeV2(request, client.client()::untagResource)
-                logger.log("Successfully untagged ${ResourceModel.TYPE_NAME} ${resourceModel.partnershipId}")
-                response
-            }
-            .progress()
+        return if (removedTags.isNotEmpty()) {
+            proxy.initiate(UNTAG_OPERATION, proxyClient, resourceModel, callbackContext)
+                .translateToServiceRequest { model -> Translator.translateToUntagResourceRequest(model, removedTags) }
+                .makeServiceCall { request, client ->
+                    val response = proxy.injectCredentialsAndInvokeV2(request, client.client()::untagResource)
+                    logger.log("Successfully untagged ${ResourceModel.TYPE_NAME} ${resourceModel.partnershipId}")
+                    response
+                }
+                .progress()
+        } else {
+            ProgressEvent.progress(resourceModel, callbackContext)
+        }
     }
 
     /**

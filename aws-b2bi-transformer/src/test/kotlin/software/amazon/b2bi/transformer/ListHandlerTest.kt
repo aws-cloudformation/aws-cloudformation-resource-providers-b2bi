@@ -38,9 +38,7 @@ class ListHandlerTest {
         unmockkAll()
     }
 
-    @ParameterizedTest
-    @MethodSource("listHandlerSuccessTestData")
-    fun handleRequest(testArgs: TestArgs) {
+    private fun handleRequest(testArgs: TestArgs) {
         every {
             proxy.injectCredentialsAndInvokeV2(
                 any<ListTransformersRequest>(),
@@ -64,6 +62,18 @@ class ListHandlerTest {
         assertThat(response.errorCode).isNull()
     }
 
+    @ParameterizedTest
+    @MethodSource("listHandlerSuccessLegacyTransformerTestData")
+    fun handleLegacyRequest(testArgs: TestArgs) = handleRequest(testArgs)
+
+    @ParameterizedTest
+    @MethodSource("listHandlerSuccessInboundTransformerTestData")
+    fun handleInboundRequest(testArgs: TestArgs) = handleRequest(testArgs)
+
+    @ParameterizedTest
+    @MethodSource("listHandlerSuccessOutboundTransformerTestData")
+    fun handleOutboundRequest(testArgs: TestArgs) = handleRequest(testArgs)
+
     private fun ListHandler.handleRequest(
         request: ResourceHandlerRequest<ResourceModel>
     ): ProgressEvent<ResourceModel, CallbackContext?> {
@@ -79,12 +89,32 @@ class ListHandlerTest {
 
     companion object {
         @JvmStatic
-        fun listHandlerSuccessTestData() = listOf(
+        fun listHandlerSuccessLegacyTransformerTestData() = listOf(
             TestArgs(
-                testName = "List transformers with no nextToken and single existing profile returns one transformer.",
+                testName = "List legacy transformers with no nextToken and single existing profile returns one transformer.",
                 requestNextToken = null,
-                apiResponse = TEST_LIST_TRANSFORMERS_RESPONSE_WITH_ONE_TRANSFORMER_WITH_ALL_FIELDS,
-                expectedResourceModels = listOf(TEST_LIST_TRANSFORMERS_RESPONSE_RESOURCE_MODEL_WITH_ALL_FIELDS)
+                apiResponse = TEST_LIST_TRANSFORMERS_RESPONSE_WITH_ONE_TRANSFORMER_WITH_ALL_LEGACY_FIELDS,
+                expectedResourceModels = listOf(TEST_LIST_TRANSFORMERS_RESPONSE_RESOURCE_MODEL_WITH_ALL_LEGACY_FIELDS)
+            )
+        )
+
+        @JvmStatic
+        fun listHandlerSuccessInboundTransformerTestData() = listOf(
+            TestArgs(
+                testName = "List inbound transformers with no nextToken and single existing profile returns one transformer.",
+                requestNextToken = null,
+                apiResponse = TEST_LIST_TRANSFORMERS_RESPONSE_WITH_ONE_TRANSFORMER_WITH_ALL_INBOUND_FIELDS,
+                expectedResourceModels = listOf(TEST_LIST_TRANSFORMERS_RESPONSE_RESOURCE_MODEL_WITH_ALL_INBOUND_FIELDS)
+            )
+        )
+
+        @JvmStatic
+        fun listHandlerSuccessOutboundTransformerTestData() = listOf(
+            TestArgs(
+                testName = "List outbound transformers with no nextToken and single existing profile returns one transformer.",
+                requestNextToken = null,
+                apiResponse = TEST_LIST_TRANSFORMERS_RESPONSE_WITH_ONE_TRANSFORMER_WITH_ALL_OUTBOUND_FIELDS,
+                expectedResourceModels = listOf(TEST_LIST_TRANSFORMERS_RESPONSE_RESOURCE_MODEL_WITH_ALL_OUTBOUND_FIELDS)
             )
         )
     }

@@ -1,12 +1,10 @@
 package software.amazon.b2bi.transformer
 
-import software.amazon.awssdk.awscore.AwsResponse
 import software.amazon.awssdk.awscore.exception.AwsServiceException
 import software.amazon.awssdk.services.b2bi.B2BiClient
 import software.amazon.awssdk.services.b2bi.model.GetTransformerRequest
 import software.amazon.awssdk.services.b2bi.model.GetTransformerResponse
 import software.amazon.b2bi.transformer.Translator.toCfnException
-import software.amazon.cloudformation.exceptions.CfnGeneralServiceException
 import software.amazon.cloudformation.proxy.*
 
 class ReadHandler : BaseHandlerStd() {
@@ -62,6 +60,10 @@ class ReadHandler : BaseHandlerStd() {
             status =  readResponseResourceModel.status
             ediType = readResponseResourceModel.ediType
             sampleDocument = readResponseResourceModel.sampleDocument
+            inputConversion = readResponseResourceModel.inputConversion
+            outputConversion = readResponseResourceModel.outputConversion
+            mapping = readResponseResourceModel.mapping
+            sampleDocuments = readResponseResourceModel.sampleDocuments
             createdAt = readResponseResourceModel.createdAt
             modifiedAt = readResponseResourceModel.modifiedAt
         }

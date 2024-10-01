@@ -1,0 +1,15 @@
+{
+  "CreateInputs": {
+    "BusinessName": "CFN Contract Test Inc",
+    "Logging": "ENABLED",
+    "Name": "CFN Contract Test Profile {{uuid}}",
+    "Phone": "1234567890"
+  },
+  "PatchInputs": [
+    {
+      "op": "replace",
+      "path": "/BusinessName",
+      "value": "Updated CFN Contract Test Inc"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+# This is a generated file - do not edit!
+testAccounts:
+  - regionName: us-east-1
+    iamRoleArn: arn:aws:iam::434402888999:role/CfnContractTests
+    s3BucketName: cfn-contract-test-434402888999
+    kmsKeyArn: arn:aws:kms:us-east-1:434402888999:key/5c5ed152-14f3-4a5a-884e-6baa4f337df2
+  - regionName: us-east-2
+    iamRoleArn: arn:aws:iam::118283597996:role/CfnContractTests
+    s3BucketName: cfn-contract-test-118283597996
+    kmsKeyArn: arn:aws:kms:us-east-2:118283597996:key/5a9a109d-855f-407c-a240-3c67d1787ff9
+  - regionName: us-west-2
+    iamRoleArn: arn:aws:iam::681677516776:role/CfnContractTests
+    s3BucketName: cfn-contract-test-681677516776
+    kmsKeyArn: arn:aws:kms:us-west-2:681677516776:key/331a60a8-c41b-462b-b3ae-1aa5c9c0f391

@@ -1,0 +1,45 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation template to create AWS::B2BI::Partnership resource.
+Resources:
+  Partnership:
+    Type: AWS::B2BI::Partnership
+    Properties:
+      Name:
+        Fn::Sub:
+          - CFN Canary Partnership ${UUID}
+          - UUID:
+              Fn::Select:
+                - 2
+                - Fn::Split:
+                  - /
+                  - Ref: AWS::StackId
+      Email: cfn-canary-partnership@amazon.com
+      Phone: 1234567890
+      CapabilityOptions:
+        OutboundEdi:
+          X12:
+            Common:
+              Delimiters:
+                ComponentSeparator: ":"
+                DataElementSeparator: "*"
+                SegmentTerminator: "~"
+              FunctionalGroupHeaders:
+                ApplicationSenderCode: "ASC"
+                ApplicationReceiverCode: "ARC"
+                ResponsibleAgencyCode: "X"
+              InterchangeControlHeaders:
+                SenderIdQualifier: "01"
+                SenderId: "123456789012345"
+                ReceiverIdQualifier: "01"
+                ReceiverId: "098765432109876"
+                AcknowledgmentRequestedCode: "0"
+                UsageIndicatorCode: "T"
+              ValidateEdi: "false"
+      Capabilities:
+        - Fn::ImportValue: CFNB2BICapabilityId
+      ProfileId:
+        Fn::ImportValue: CFNB2BIProfileId
+      Tags:
+        - Key: resourceKey
+          Value: resourceValue

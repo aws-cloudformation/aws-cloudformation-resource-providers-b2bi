@@ -13,6 +13,7 @@ To declare this entity in your AWS CloudFormation template, use the following sy
     "Type" : "AWS::B2BI::Partnership",
     "Properties" : {
         "<a href="#capabilities" title="Capabilities">Capabilities</a>" : <i>[ String, ... ]</i>,
+        "<a href="#capabilityoptions" title="CapabilityOptions">CapabilityOptions</a>" : <i><a href="capabilityoptions.md">CapabilityOptions</a></i>,
         "<a href="#email" title="Email">Email</a>" : <i>String</i>,
         "<a href="#name" title="Name">Name</a>" : <i>String</i>,
         "<a href="#phone" title="Phone">Phone</a>" : <i>String</i>,
@@ -29,6 +30,7 @@ Type: AWS::B2BI::Partnership
 Properties:
     <a href="#capabilities" title="Capabilities">Capabilities</a>: <i>
       - String</i>
+    <a href="#capabilityoptions" title="CapabilityOptions">CapabilityOptions</a>: <i><a href="capabilityoptions.md">CapabilityOptions</a></i>
     <a href="#email" title="Email">Email</a>: <i>String</i>
     <a href="#name" title="Name">Name</a>: <i>String</i>
     <a href="#phone" title="Phone">Phone</a>: <i>String</i>
@@ -44,6 +46,14 @@ Properties:
 _Required_: Yes
 
 _Type_: List of String
+
+_Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
+
+#### CapabilityOptions
+
+_Required_: No
+
+_Type_: <a href="capabilityoptions.md">CapabilityOptions</a>
 
 _Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
 
