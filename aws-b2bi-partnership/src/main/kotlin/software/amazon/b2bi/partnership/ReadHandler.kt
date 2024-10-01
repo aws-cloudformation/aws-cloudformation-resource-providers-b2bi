@@ -62,6 +62,7 @@ class ReadHandler : BaseHandlerStd() {
             email = readResponseResourceModel.email
             phone = readResponseResourceModel.phone
             capabilities = readResponseResourceModel.capabilities
+            capabilityOptions = readResponseResourceModel.capabilityOptions
             tradingPartnerId = readResponseResourceModel.tradingPartnerId
             createdAt = readResponseResourceModel.createdAt
             modifiedAt = readResponseResourceModel.modifiedAt

@@ -8,6 +8,7 @@ To declare this entity in your AWS CloudFormation template, use the following sy
 
 <pre>
 {
+    "<a href="#capabilitydirection" title="CapabilityDirection">CapabilityDirection</a>" : <i>String</i>,
     "<a href="#type" title="Type">Type</a>" : <i><a href="editype.md">EdiType</a></i>,
     "<a href="#inputlocation" title="InputLocation">InputLocation</a>" : <i><a href="s3location.md">S3Location</a></i>,
     "<a href="#outputlocation" title="OutputLocation">OutputLocation</a>" : <i><a href="s3location.md">S3Location</a></i>,
@@ -18,6 +19,7 @@ To declare this entity in your AWS CloudFormation template, use the following sy
 ### YAML
 
 <pre>
+<a href="#capabilitydirection" title="CapabilityDirection">CapabilityDirection</a>: <i>String</i>
 <a href="#type" title="Type">Type</a>: <i><a href="editype.md">EdiType</a></i>
 <a href="#inputlocation" title="InputLocation">InputLocation</a>: <i><a href="s3location.md">S3Location</a></i>
 <a href="#outputlocation" title="OutputLocation">OutputLocation</a>: <i><a href="s3location.md">S3Location</a></i>
@@ -25,6 +27,16 @@ To declare this entity in your AWS CloudFormation template, use the following sy
 </pre>
 
 ## Properties
+
+#### CapabilityDirection
+
+_Required_: No
+
+_Type_: String
+
+_Allowed Values_: <code>INBOUND</code> | <code>OUTBOUND</code>
+
+_Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
 
 #### Type
 

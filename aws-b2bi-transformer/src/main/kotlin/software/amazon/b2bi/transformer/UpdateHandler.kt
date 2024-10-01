@@ -14,6 +14,10 @@ import software.amazon.b2bi.transformer.TagHelper.tagResource
 import software.amazon.b2bi.transformer.TagHelper.untagResource
 import software.amazon.b2bi.transformer.Translator.toCfnException
 import software.amazon.b2bi.transformer.Translator.translateToResourceEdi
+import software.amazon.b2bi.transformer.Translator.translateToResourceInputConversion
+import software.amazon.b2bi.transformer.Translator.translateToResourceMapping
+import software.amazon.b2bi.transformer.Translator.translateToResourceOutputConversion
+import software.amazon.b2bi.transformer.Translator.translateToResourceSampleDocuments
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
 import software.amazon.cloudformation.proxy.Logger
 import software.amazon.cloudformation.proxy.ProgressEvent
@@ -59,14 +63,22 @@ class UpdateHandler : BaseHandlerStd() {
         }
         resourceModel.apply {
             transformerArn = response.transformerArn()
-            mappingTemplate = response.mappingTemplate()
-            fileFormat = response.fileFormat().toString()
-            ediType = response.ediType().translateToResourceEdi()
-            sampleDocument = response.sampleDocument()
             name = response.name()
             createdAt = response.createdAt().toString()
             status = response.status().toString()
             modifiedAt = response.modifiedAt().toString()
+
+            // old fields
+            mappingTemplate = response.mappingTemplate()
+            fileFormat = response.fileFormatAsString()
+            ediType = response.ediType()?.translateToResourceEdi()
+            sampleDocument = response.sampleDocument()
+
+            // new fields
+            inputConversion = response.inputConversion()?.translateToResourceInputConversion()
+            outputConversion = response.outputConversion()?.translateToResourceOutputConversion()
+            mapping = response.mapping()?.translateToResourceMapping()
+            sampleDocuments = response.sampleDocuments()?.translateToResourceSampleDocuments()
         }
         logger.log("Successfully updated ${ResourceModel.TYPE_NAME} ${resourceModel.transformerId}")
         return response
