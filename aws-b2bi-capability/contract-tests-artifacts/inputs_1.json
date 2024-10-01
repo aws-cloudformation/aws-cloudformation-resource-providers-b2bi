@@ -1,0 +1,58 @@
+{
+  "CreateInputs": {
+    "Name": "CFN Contract Test Capability {{uuid}}",
+    "Type": "edi",
+    "Configuration": {
+      "Edi": {
+        "Type": {
+          "X12Details": {
+            "TransactionSet": "X12_214",
+            "Version": "VERSION_4010"
+          }
+        },
+        "InputLocation": {
+          "BucketName": "{{awsb2bicapabilitycto1}}",
+          "Key": "inputs/"
+        },
+        "OutputLocation": {
+          "BucketName": "{{awsb2bicapabilitycto1}}",
+          "Key": "outputs/"
+        },
+        "TransformerId": "{{awsb2bicapabilitycto2}}",
+        "CapabilityDirection": "INBOUND"
+      }
+    },
+    "InstructionsDocuments": [
+      {
+        "BucketName": "{{awsb2bicapabilitycto1}}",
+        "Key": "instructions/instruction-document.pdf"
+      }
+    ],
+    "Tags": [
+      {
+        "Key": "apple",
+        "Value": "red"
+      },
+      {
+        "Key": "berry",
+        "Value": "blue"
+      }
+    ]
+  },
+  "PatchInputs": [
+    {
+      "op": "replace",
+      "path": "/Name",
+      "value": "Updated CFN Contract Test Capability {{uuid}}"
+    },
+    {
+      "op": "replace",
+      "path": "/Tags/0/Value",
+      "value": "green"
+    },
+    {
+      "op": "remove",
+      "path": "/Tags/1"
+    }
+  ]
+}

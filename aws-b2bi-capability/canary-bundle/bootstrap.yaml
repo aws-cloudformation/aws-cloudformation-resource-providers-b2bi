@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation template to create bootstrap resources for AWS::B2BI::Capability resource.
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Sub: cfn-canary-capability-bucket-${AWS::Region}-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: true
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      NotificationConfiguration:
+        EventBridgeConfiguration:
+          EventBridgeEnabled: true
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    DeletionPolicy: Delete
+    Properties:
+      Bucket:
+        Ref: S3Bucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Id: S3BucketPolicy
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: b2bi.amazonaws.com
+            Action:
+              - s3:GetObject
+              - s3:GetObjectAttributes
+            Resource:
+              Fn::Sub: arn:aws:s3:::${S3Bucket}/inputs/*
+            Condition:
+              StringEquals:
+                aws:SourceAccount:
+                  Ref: AWS::AccountId
+          - Effect: Allow
+            Principal:
+              Service: b2bi.amazonaws.com
+            Action:
+              - s3:GetObject
+              - s3:DeleteObject
+              - s3:PutObject
+              - s3:AbortMultipartUpload
+            Resource:
+              Fn::Sub: arn:aws:s3:::${S3Bucket}/outputs/*
+            Condition:
+              StringEquals:
+                aws:SourceAccount:
+                  Ref: AWS::AccountId
+  Transformer:
+    Type: AWS::B2BI::Transformer
+    Properties:
+      Name: CFN_Canary_Transformer_For_Capability
+      FileFormat: JSON
+      MappingTemplate: ""
+      EdiType:
+        X12Details:
+          TransactionSet: X12_214
+          Version: VERSION_4010
+      Status: active
+
+Outputs:
+  S3BucketName:
+    Description: S3 bucket name for Capability
+    Value:
+      Ref: S3Bucket
+    Export:
+      Name: CFNB2BIS3BucketName
+  TransformerId:
+    Description: Transformer for Capability
+    Value:
+      Ref: Transformer
+    Export:
+      Name: CFNB2BITransformerId

@@ -1,19 +1,17 @@
 package software.amazon.b2bi.partnership
 
-import com.google.common.collect.Lists
-import software.amazon.awssdk.awscore.AwsRequest
-import software.amazon.awssdk.awscore.AwsResponse
 import software.amazon.awssdk.awscore.exception.AwsServiceException
 import software.amazon.awssdk.services.b2bi.model.AccessDeniedException
+import software.amazon.awssdk.services.b2bi.model.CapabilityOptions as SdkCapabilityOptions
 import software.amazon.awssdk.services.b2bi.model.ConflictException
 import software.amazon.awssdk.services.b2bi.model.CreatePartnershipRequest
-import software.amazon.awssdk.services.b2bi.model.DeleteCapabilityRequest
 import software.amazon.awssdk.services.b2bi.model.DeletePartnershipRequest
 import software.amazon.awssdk.services.b2bi.model.GetPartnershipRequest
 import software.amazon.awssdk.services.b2bi.model.GetPartnershipResponse
 import software.amazon.awssdk.services.b2bi.model.InternalServerException
 import software.amazon.awssdk.services.b2bi.model.ListPartnershipsRequest
 import software.amazon.awssdk.services.b2bi.model.ListPartnershipsResponse
+import software.amazon.awssdk.services.b2bi.model.OutboundEdiOptions as SdkOutboundEdiOptions
 import software.amazon.awssdk.services.b2bi.model.ResourceNotFoundException
 import software.amazon.awssdk.services.b2bi.model.ServiceQuotaExceededException
 import software.amazon.awssdk.services.b2bi.model.TagResourceRequest
@@ -21,7 +19,19 @@ import software.amazon.awssdk.services.b2bi.model.ThrottlingException
 import software.amazon.awssdk.services.b2bi.model.UntagResourceRequest
 import software.amazon.awssdk.services.b2bi.model.UpdatePartnershipRequest
 import software.amazon.awssdk.services.b2bi.model.ValidationException
+import software.amazon.awssdk.services.b2bi.model.X12Delimiters as SdkX12Delimiters
+import software.amazon.awssdk.services.b2bi.model.X12Envelope as SdkX12Envelope
+import software.amazon.awssdk.services.b2bi.model.X12FunctionalGroupHeaders as SdkX12FunctionalGroupHeaders
+import software.amazon.awssdk.services.b2bi.model.X12InterchangeControlHeaders as SdkX12InterchangeControlHeaders
+import software.amazon.awssdk.services.b2bi.model.X12OutboundEdiHeaders as SdkX12OutboundEdiHeaders
 import software.amazon.b2bi.partnership.TagHelper.toSdkTag
+import software.amazon.b2bi.partnership.CapabilityOptions as ResourceCapabilityOptions
+import software.amazon.b2bi.partnership.OutboundEdiOptions as ResourceOutboundEdiOptions
+import software.amazon.b2bi.partnership.X12Envelope as ResourceX12Envelope
+import software.amazon.b2bi.partnership.X12OutboundEdiHeaders as ResourceX12OutboundEdiHeaders
+import software.amazon.b2bi.partnership.X12InterchangeControlHeaders as ResourceX12InterchangeControlHeaders
+import software.amazon.b2bi.partnership.X12FunctionalGroupHeaders as ResourceX12FunctionalGroupHeaders
+import software.amazon.b2bi.partnership.X12Delimiters as ResourceX12Delimiters
 import software.amazon.cloudformation.exceptions.BaseHandlerException
 import software.amazon.cloudformation.exceptions.CfnAccessDeniedException
 import software.amazon.cloudformation.exceptions.CfnAlreadyExistsException
@@ -33,8 +43,6 @@ import software.amazon.cloudformation.exceptions.CfnServiceLimitExceededExceptio
 import software.amazon.cloudformation.exceptions.CfnThrottlingException
 import java.time.Instant
 import java.util.*
-import java.util.stream.Collectors
-import java.util.stream.Stream
 
 /**
  * This class is a centralized placeholder for
@@ -55,6 +63,7 @@ object Translator {
             .email(model.email)
             .phone(model.phone)
             .capabilities(model.capabilities)
+            .capabilityOptions(model.capabilityOptions?.translateToSdkCapabilityOptions())
             .tags(model.tags.map { it.toSdkTag() })
             .build()
     }
@@ -85,6 +94,7 @@ object Translator {
             .email(response.email().emptyToNull())
             .phone(response.phone().emptyToNull())
             .capabilities(response.capabilities())
+            .capabilityOptions(response.capabilityOptions()?.translateToResourceCapabilityOptions())
             .tradingPartnerId(response.tradingPartnerId().emptyToNull())
             .createdAt(response.createdAt().emptyToNull())
             .modifiedAt(response.modifiedAt().emptyToNull())
@@ -116,6 +126,7 @@ object Translator {
             .partnershipId(model.partnershipId)
             .name(model.name)
             .capabilities(model.capabilities)
+            .capabilityOptions(model.capabilityOptions?.translateToSdkCapabilityOptions())
             .build()
     }
 
@@ -144,6 +155,7 @@ object Translator {
                 .partnershipId(it.partnershipId())
                 .name(it.name())
                 .capabilities(it.capabilities())
+                .capabilityOptions(it.capabilityOptions()?.translateToResourceCapabilityOptions())
                 .tradingPartnerId(it.tradingPartnerId())
                 .createdAt(it.createdAt().toString())
                 .modifiedAt(it.modifiedAt().toString())
@@ -175,6 +187,88 @@ object Translator {
             .resourceARN(model.partnershipArn)
             .tagKeys(removedTags)
             .build()
+    }
+
+    fun ResourceCapabilityOptions.translateToSdkCapabilityOptions(): SdkCapabilityOptions {
+        val resourceInterchangeControlHeaders = this.outboundEdi?.x12?.common?.interchangeControlHeaders
+        val resourceFunctionalGroupHeaders = this.outboundEdi?.x12?.common?.functionalGroupHeaders
+        val resourceDelimiters = this.outboundEdi?.x12?.common?.delimiters
+
+        return SdkCapabilityOptions.builder().outboundEdi(
+            SdkOutboundEdiOptions.builder().x12(
+                SdkX12Envelope.builder().common(
+                    SdkX12OutboundEdiHeaders.builder()
+                        .interchangeControlHeaders(
+                            SdkX12InterchangeControlHeaders.builder()
+                                .senderIdQualifier(resourceInterchangeControlHeaders?.senderIdQualifier)
+                                .senderId(resourceInterchangeControlHeaders?.senderId)
+                                .receiverIdQualifier(resourceInterchangeControlHeaders?.receiverIdQualifier)
+                                .receiverId(resourceInterchangeControlHeaders?.receiverId)
+                                .repetitionSeparator(resourceInterchangeControlHeaders?.repetitionSeparator)
+                                .acknowledgmentRequestedCode(resourceInterchangeControlHeaders?.acknowledgmentRequestedCode)
+                                .usageIndicatorCode(resourceInterchangeControlHeaders?.usageIndicatorCode)
+                                .build()
+                        )
+                        .functionalGroupHeaders(
+                            SdkX12FunctionalGroupHeaders.builder()
+                                .applicationSenderCode(resourceFunctionalGroupHeaders?.applicationSenderCode)
+                                .applicationReceiverCode(resourceFunctionalGroupHeaders?.applicationReceiverCode)
+                                .responsibleAgencyCode(resourceFunctionalGroupHeaders?.responsibleAgencyCode)
+                                .build()
+                        )
+                        .delimiters(
+                            SdkX12Delimiters.builder()
+                                .componentSeparator(resourceDelimiters?.componentSeparator)
+                                .dataElementSeparator(resourceDelimiters?.dataElementSeparator)
+                                .segmentTerminator(resourceDelimiters?.segmentTerminator)
+                                .build()
+                        )
+                        .validateEdi(this.outboundEdi?.x12?.common?.validateEdi)
+                        .build()
+                ).build()
+            ).build()
+        ).build()
+    }
+
+    fun SdkCapabilityOptions.translateToResourceCapabilityOptions(): ResourceCapabilityOptions {
+        val sdkInterchangeControlHeaders = this.outboundEdi()?.x12()?.common()?.interchangeControlHeaders()
+        val sdkFunctionalGroupHeaders = this.outboundEdi()?.x12()?.common()?.functionalGroupHeaders()
+        val sdkDelimiters = this.outboundEdi()?.x12()?.common()?.delimiters()
+
+        return ResourceCapabilityOptions.builder().outboundEdi(
+            ResourceOutboundEdiOptions.builder().x12(
+                ResourceX12Envelope.builder().common(
+                    ResourceX12OutboundEdiHeaders.builder()
+                        .interchangeControlHeaders(
+                            ResourceX12InterchangeControlHeaders.builder()
+                                .senderIdQualifier(sdkInterchangeControlHeaders?.senderIdQualifier())
+                                .senderId(sdkInterchangeControlHeaders?.senderId())
+                                .receiverIdQualifier(sdkInterchangeControlHeaders?.receiverIdQualifier())
+                                .receiverId(sdkInterchangeControlHeaders?.receiverId())
+                                .repetitionSeparator(sdkInterchangeControlHeaders?.repetitionSeparator())
+                                .acknowledgmentRequestedCode(sdkInterchangeControlHeaders?.acknowledgmentRequestedCode())
+                                .usageIndicatorCode(sdkInterchangeControlHeaders?.usageIndicatorCode())
+                                .build()
+                        )
+                        .functionalGroupHeaders(
+                            ResourceX12FunctionalGroupHeaders.builder()
+                                .applicationSenderCode(sdkFunctionalGroupHeaders?.applicationSenderCode())
+                                .applicationReceiverCode(sdkFunctionalGroupHeaders?.applicationReceiverCode())
+                                .responsibleAgencyCode(sdkFunctionalGroupHeaders?.responsibleAgencyCode())
+                                .build()
+                        )
+                        .delimiters(
+                            ResourceX12Delimiters.builder()
+                                .componentSeparator(sdkDelimiters?.componentSeparator())
+                                .dataElementSeparator(sdkDelimiters?.dataElementSeparator())
+                                .segmentTerminator(sdkDelimiters?.segmentTerminator())
+                                .build()
+                        )
+                        .validateEdi(this.outboundEdi()?.x12()?.common()?.validateEdi())
+                        .build()
+                ).build()
+            ).build()
+        ).build()
     }
 
     /**

@@ -1,0 +1,54 @@
+{
+  "CreateInputs": {
+    "Name": "CFN_Contract_Test_Transformer_{{uuid}}",
+    "OutputConversion": {
+      "ToFormat": "X12",
+      "FormatOptions": {
+        "X12": {
+          "TransactionSet": "X12_110",
+          "Version": "VERSION_4010"
+        }
+      }
+    },
+    "Mapping": {
+      "TemplateLanguage": "JSONATA",
+      "Template": "{}"
+    },
+    "SampleDocuments": {
+      "BucketName": "test-bucket",
+      "Keys": [
+        {
+          "Input": "inputSampleDoc.txt",
+          "Output": "outputSampleDoc.txt"
+        }
+      ]
+    },
+    "Status": "inactive",
+    "Tags": [
+      {
+        "Key": "apple",
+        "Value": "red"
+      },
+      {
+        "Key": "berry",
+        "Value": "blue"
+      }
+    ]
+  },
+  "PatchInputs": [
+    {
+      "op": "replace",
+      "path": "/Mapping/Template",
+      "value": "$"
+    },
+    {
+      "op": "replace",
+      "path": "/Tags/0/Value",
+      "value": "green"
+    },
+    {
+      "op": "remove",
+      "path": "/Tags/1"
+    }
+  ]
+}

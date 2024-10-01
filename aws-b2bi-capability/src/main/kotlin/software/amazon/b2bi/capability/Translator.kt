@@ -1,8 +1,5 @@
 package software.amazon.b2bi.capability
 
-import com.google.common.collect.Lists
-import software.amazon.awssdk.awscore.AwsRequest
-import software.amazon.awssdk.awscore.AwsResponse
 import software.amazon.awssdk.awscore.exception.AwsServiceException
 import software.amazon.awssdk.services.b2bi.model.AccessDeniedException
 import software.amazon.awssdk.services.b2bi.model.ConflictException
@@ -31,9 +28,6 @@ import software.amazon.cloudformation.exceptions.CfnServiceInternalErrorExceptio
 import software.amazon.cloudformation.exceptions.CfnServiceLimitExceededException
 import software.amazon.cloudformation.exceptions.CfnThrottlingException
 import java.time.Instant
-import java.util.*
-import java.util.stream.Collectors
-import java.util.stream.Stream
 import software.amazon.awssdk.services.b2bi.model.S3Location as SdkS3Location
 import software.amazon.b2bi.capability.S3Location as ResourceS3Location
 import software.amazon.awssdk.services.b2bi.model.CapabilityConfiguration as SdkCapabilityConfiguration
@@ -132,9 +126,7 @@ object Translator {
      */
     fun translateToListRequest(nextToken: String?): ListCapabilitiesRequest {
         return ListCapabilitiesRequest.builder()
-            .apply {
-                nextToken?.let { nextToken(it) }
-            }
+            .apply { nextToken?.let { nextToken(it) } }
             .build()
     }
 
@@ -200,53 +192,47 @@ object Translator {
         else -> CfnGeneralServiceException(this)
     }
 
-    fun ResourceS3Location.toSdkS3Location(): SdkS3Location {
-        return SdkS3Location.builder().bucketName(this.bucketName).key(this.key).build()
-    }
-
-    fun SdkS3Location.toResourceS3Location(): ResourceS3Location {
-        return ResourceS3Location.builder().bucketName(this.bucketName()).key(this.key()).build()
-    }
-
-    fun ResourceCapabilityConfiguration.toSdkCapabilityConfiguration(): SdkCapabilityConfiguration {
-        return SdkCapabilityConfiguration.builder().edi(this.edi.toSdkEdiConfiguration()).build()
-    }
+    fun ResourceCapabilityConfiguration.toSdkCapabilityConfiguration(): SdkCapabilityConfiguration =
+        SdkCapabilityConfiguration.builder().edi(this.edi.toSdkEdiConfiguration()).build()
 
     fun ResourceEdiConfiguration.toSdkEdiConfiguration(): SdkEdiConfiguration {
         return SdkEdiConfiguration.builder()
             .type(this.type.toSdkEdiType())
+            .capabilityDirection(this.capabilityDirection)
             .inputLocation(this.inputLocation.toSdkS3Location())
             .outputLocation(this.outputLocation.toSdkS3Location())
             .transformerId(this.transformerId)
             .build()
     }
 
-    fun ResourceEdiType.toSdkEdiType(): SdkEdiType {
-        return SdkEdiType.builder().x12Details(this.x12Details.toSdkX12Details()).build()
-    }
+    fun ResourceEdiType.toSdkEdiType(): SdkEdiType =
+        SdkEdiType.builder().x12Details(this.x12Details.toSdkX12Details()).build()
 
-    fun ResourceX12Details.toSdkX12Details(): SdkX12Details {
-        return SdkX12Details.builder().transactionSet(this.transactionSet).version(this.version).build()
-    }
+    fun ResourceX12Details.toSdkX12Details(): SdkX12Details =
+        SdkX12Details.builder().transactionSet(this.transactionSet).version(this.version).build()
 
-    fun SdkCapabilityConfiguration.toResourceCapabilityConfiguration(): ResourceCapabilityConfiguration {
-        return ResourceCapabilityConfiguration.builder().edi(this.edi().toResourceEdiConfiguration()).build()
-    }
+    fun ResourceS3Location.toSdkS3Location(): SdkS3Location =
+        SdkS3Location.builder().bucketName(this.bucketName).key(this.key).build()
+
+    fun SdkCapabilityConfiguration.toResourceCapabilityConfiguration(): ResourceCapabilityConfiguration =
+        ResourceCapabilityConfiguration.builder().edi(this.edi().toResourceEdiConfiguration()).build()
 
     fun SdkEdiConfiguration.toResourceEdiConfiguration(): ResourceEdiConfiguration {
         return ResourceEdiConfiguration.builder()
             .type(this.type().toResourceEdiType())
+            .capabilityDirection(this.capabilityDirectionAsString())
             .inputLocation(this.inputLocation().toResourceS3Location())
             .outputLocation(this.outputLocation().toResourceS3Location())
             .transformerId(this.transformerId())
             .build()
     }
 
-    fun SdkEdiType.toResourceEdiType(): ResourceEdiType {
-        return ResourceEdiType.builder().x12Details(this.x12Details().toResourceX12Details()).build()
-    }
+    fun SdkEdiType.toResourceEdiType(): ResourceEdiType =
+        ResourceEdiType.builder().x12Details(this.x12Details().toResourceX12Details()).build()
 
-    fun SdkX12Details.toResourceX12Details(): ResourceX12Details {
-        return ResourceX12Details.builder().transactionSet(this.transactionSetAsString()).version(this.versionAsString()).build()
-    }
+    fun SdkX12Details.toResourceX12Details(): ResourceX12Details =
+        ResourceX12Details.builder().transactionSet(this.transactionSetAsString()).version(this.versionAsString()).build()
+
+    fun SdkS3Location.toResourceS3Location(): ResourceS3Location =
+        ResourceS3Location.builder().bucketName(this.bucketName()).key(this.key()).build()
 }

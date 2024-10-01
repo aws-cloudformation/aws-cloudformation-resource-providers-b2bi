@@ -1,0 +1,197 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation template to create bootstrap resources for AWS::B2BI::Partnership resource.
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Sub: cfn-canary-partnership-bucket-${AWS::Region}-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: true
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      NotificationConfiguration:
+        EventBridgeConfiguration:
+          EventBridgeEnabled: true
+      # Included to automatically clean up old trading partner directories
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteContentAfter1Day
+            Prefix: inputs/
+            Status: Enabled
+            ExpirationInDays: 1
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    DeletionPolicy: Delete
+    Properties:
+      Bucket:
+        Ref: S3Bucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Id: S3BucketPolicy
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: b2bi.amazonaws.com
+            Action:
+              - s3:GetObject
+              - s3:GetObjectAttributes
+            Resource:
+              Fn::Sub: arn:aws:s3:::${S3Bucket}/inputs/*
+            Condition:
+              StringEquals:
+                aws:SourceAccount:
+                  Ref: AWS::AccountId
+          - Effect: Allow
+            Principal:
+              Service: b2bi.amazonaws.com
+            Action:
+              - s3:GetObject
+              - s3:DeleteObject
+              - s3:PutObject
+              - s3:AbortMultipartUpload
+            Resource:
+              Fn::Sub: arn:aws:s3:::${S3Bucket}/outputs/*
+            Condition:
+              StringEquals:
+                aws:SourceAccount:
+                  Ref: AWS::AccountId
+  Profile:
+    Type: AWS::B2BI::Profile
+    Properties:
+      BusinessName: CFN Canary Profile for Partnership Inc
+      Email: cfn-canary-test-partnership@amazon.com
+      Logging: ENABLED
+      Name: CFN Canary Profile for Partnership
+      Phone: 1234567890
+  Transformer:
+    Type: AWS::B2BI::Transformer
+    Properties:
+      Name: CFN_Transformer_For_Partnership
+      FileFormat: JSON
+      MappingTemplate: ""
+      EdiType:
+        X12Details:
+          TransactionSet: X12_214
+          Version: VERSION_4010
+      Status: active
+  Capability:
+    Type: AWS::B2BI::Capability
+    Properties:
+      Name: CFN Canary Capability for Partnership
+      Type: edi
+      Configuration:
+        Edi:
+          Type:
+            X12Details:
+              TransactionSet: X12_214
+              Version: VERSION_4010
+          InputLocation:
+            BucketName:
+              Ref: S3Bucket
+            Key: inputs/
+          OutputLocation:
+            BucketName:
+              Ref: S3Bucket
+            Key: outputs/
+          TransformerId:
+            Ref: Transformer
+      InstructionsDocuments:
+        - BucketName:
+            Ref: S3Bucket
+          Key: instructions/
+  CleanupBucketOnDeleteLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName:
+            Fn::Sub: "cfn-deletebucketrole-partnership-${AWS::Region}-${AWS::AccountId}"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:*
+                  - s3:*
+                Resource: '*'
+  CleanupBucketOnDeleteLambda:
+    DependsOn: S3Bucket
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile:
+          Fn::Sub: |
+            import json, boto3, logging
+            import cfnresponse
+            logger = logging.getLogger()
+            logger.setLevel(logging.INFO)
+
+            def lambda_handler(event, context):
+                logger.info("event: {}".format(event))
+                try:
+                    bucket = event['ResourceProperties']['BucketName']
+                    logger.info("bucket: {}, event['RequestType']: {}".format(bucket,event['RequestType']))
+                    if event['RequestType'] == 'Delete':
+                        s3 = boto3.resource('s3')
+                        bucket = s3.Bucket(bucket)
+                        for obj in bucket.objects.filter():
+                            logger.info("delete obj: {}".format(obj))
+                            s3.Object(bucket.name, obj.key).delete()
+
+                    sendResponseCfn(event, context, cfnresponse.SUCCESS)
+                except Exception as e:
+                    logger.info("Exception: {}".format(e))
+                    sendResponseCfn(event, context, cfnresponse.FAILED)
+
+            def sendResponseCfn(event, context, responseStatus):
+                responseData = {}
+                responseData['Data'] = {}
+                cfnresponse.send(event, context, responseStatus, responseData, "CustomResourcePhysicalID")
+
+      Handler: "index.lambda_handler"
+      Runtime: python3.9
+      MemorySize: 128
+      Timeout: 60
+      Role:
+        Fn::GetAtt: CleanupBucketOnDeleteLambdaRole.Arn
+  CleanupBucketOnDelete:
+    DependsOn: S3Bucket
+    Type: Custom::CleanupBucket
+    Properties:
+      ServiceToken:
+        Fn::GetAtt: CleanupBucketOnDeleteLambda.Arn
+      BucketName:
+        Ref: S3Bucket
+
+Outputs:
+  CapabilityId:
+    Description: Capability for Partnership
+    Value:
+      Ref: Capability
+    Export:
+      Name: CFNB2BICapabilityId
+  ProfileId:
+    Description: Profile for Partnership
+    Value:
+      Ref: Profile
+    Export:
+      Name: CFNB2BIProfileId

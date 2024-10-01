@@ -1,0 +1,35 @@
+{
+  "CreateInputs": {
+    "ProfileId": "{{awsb2bipartnershipcto1}}",
+    "Name": "CFN Contract Test Partnership {{uuid}}",
+    "Email": "cfn-contract-test-partnership@amazon.com",
+    "Phone": "1234567890",
+    "Capabilities": ["{{awsb2bipartnershipcto2}}"],
+    "Tags": [
+      {
+        "Key": "apple",
+        "Value": "red"
+      },
+      {
+        "Key": "berry",
+        "Value": "blue"
+      }
+    ]
+  },
+  "PatchInputs": [
+    {
+      "op": "replace",
+      "path": "/Name",
+      "value": "Updated CFN Contract Test Partnership {{uuid}}"
+    },
+    {
+      "op": "replace",
+      "path": "/Tags/0/Value",
+      "value": "green"
+    },
+    {
+      "op": "remove",
+      "path": "/Tags/1"
+    }
+  ]
+}

@@ -15,6 +15,7 @@ import software.amazon.b2bi.partnership.TagHelper.shouldUpdateTags
 import software.amazon.b2bi.partnership.TagHelper.tagResource
 import software.amazon.b2bi.partnership.TagHelper.untagResource
 import software.amazon.b2bi.partnership.Translator.toCfnException
+import software.amazon.b2bi.partnership.Translator.translateToResourceCapabilityOptions
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
 import software.amazon.cloudformation.proxy.Logger
 import software.amazon.cloudformation.proxy.ProgressEvent
@@ -63,6 +64,7 @@ class UpdateHandler : BaseHandlerStd() {
             email = response.email()
             phone = response.phone()
             capabilities = response.capabilities()
+            capabilityOptions = response.capabilityOptions()?.translateToResourceCapabilityOptions()
             tradingPartnerId = response.tradingPartnerId()
             createdAt = response.createdAt().toString()
             modifiedAt = response.modifiedAt().toString()
