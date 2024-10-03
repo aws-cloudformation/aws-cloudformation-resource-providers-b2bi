@@ -46,9 +46,7 @@ class UpdateHandlerTest : AbstractTestBase() {
         unmockkAll()
     }
 
-    @ParameterizedTest
-    @MethodSource("updateHandlerSuccessTestData")
-    fun handleRequest(testArgs: TestArgs) {
+    private fun handleRequest(testArgs: TestArgs) {
         every { b2BiClient.updateTransformer(any<UpdateTransformerRequest>()) } returns testArgs.apiResponse
 
         val request = ResourceHandlerRequest.builder<ResourceModel>()
@@ -68,6 +66,18 @@ class UpdateHandlerTest : AbstractTestBase() {
         assertThat(response.errorCode).isNull()
     }
 
+    @ParameterizedTest
+    @MethodSource("updateHandlerSuccessLegacyTransformerTestData")
+    fun handleLegacyRequest(testArgs: TestArgs) = handleRequest(testArgs)
+
+    @ParameterizedTest
+    @MethodSource("updateHandlerSuccessInboundTransformerTestData")
+    fun handleInboundRequest(testArgs: TestArgs) = handleRequest(testArgs)
+
+    @ParameterizedTest
+    @MethodSource("updateHandlerSuccessOutboundTransformerTestData")
+    fun handleOutboundRequest(testArgs: TestArgs) = handleRequest(testArgs)
+
     private fun UpdateHandler.handleRequest(
         request: ResourceHandlerRequest<ResourceModel>
     ): ProgressEvent<ResourceModel, CallbackContext?> {
@@ -86,15 +96,41 @@ class UpdateHandlerTest : AbstractTestBase() {
 
     companion object {
         @JvmStatic
-        fun updateHandlerSuccessTestData() = listOf(
+        fun updateHandlerSuccessLegacyTransformerTestData() = listOf(
             TestArgs(
-                testName = "Update transformer with all updatable fields.",
-                requestDesiredResourceModel = TEST_UPDATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_ALL_FIELDS,
+                testName = "Update transformer with all updatable legacy fields.",
+                requestDesiredResourceModel = TEST_UPDATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_ALL_LEGACY_FIELDS,
                 requestPreviousResourceModel = ResourceModel(),
                 requestDesiredResourceTags = emptyMap(),
                 requestPreviousResourceTags = emptyMap(),
-                apiResponse = TEST_UPDATE_TRANSFORMER_RESPONSE_WITH_ALL_FIELDS,
-                expectedResourceModel = TEST_UPDATE_TRANSFORMER_RESPONSE_RESOURCE_MODEL_WITH_ALL_FIELDS
+                apiResponse = TEST_UPDATE_TRANSFORMER_RESPONSE_WITH_ALL_LEGACY_FIELDS,
+                expectedResourceModel = TEST_UPDATE_TRANSFORMER_RESPONSE_RESOURCE_MODEL_WITH_ALL_LEGACY_FIELDS
+            )
+        )
+
+        @JvmStatic
+        fun updateHandlerSuccessInboundTransformerTestData() = listOf(
+            TestArgs(
+                testName = "Update transformer with all updatable inbound fields.",
+                requestDesiredResourceModel = TEST_UPDATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_ALL_INBOUND_FIELDS,
+                requestPreviousResourceModel = ResourceModel(),
+                requestDesiredResourceTags = emptyMap(),
+                requestPreviousResourceTags = emptyMap(),
+                apiResponse = TEST_UPDATE_TRANSFORMER_RESPONSE_WITH_ALL_INBOUND_FIELDS,
+                expectedResourceModel = TEST_UPDATE_TRANSFORMER_RESPONSE_RESOURCE_MODEL_WITH_ALL_INBOUND_FIELDS
+            )
+        )
+
+        @JvmStatic
+        fun updateHandlerSuccessOutboundTransformerTestData() = listOf(
+            TestArgs(
+                testName = "Update transformer with all updatable outbound fields.",
+                requestDesiredResourceModel = TEST_UPDATE_TRANSFORMER_REQUEST_RESOURCE_MODEL_WITH_ALL_OUTBOUND_FIELDS,
+                requestPreviousResourceModel = ResourceModel(),
+                requestDesiredResourceTags = emptyMap(),
+                requestPreviousResourceTags = emptyMap(),
+                apiResponse = TEST_UPDATE_TRANSFORMER_RESPONSE_WITH_ALL_OUTBOUND_FIELDS,
+                expectedResourceModel = TEST_UPDATE_TRANSFORMER_RESPONSE_RESOURCE_MODEL_WITH_ALL_OUTBOUND_FIELDS
             )
         )
     }

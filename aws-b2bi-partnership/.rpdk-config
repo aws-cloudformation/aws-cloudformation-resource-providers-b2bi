@@ -26,5 +26,7 @@
         "protocolVersion": "2.0.0"
     },
     "logProcessorEnabled": "true",
-    "executableEntrypoint": "software.amazon.b2bi.partnership.HandlerWrapperExecutable"
+    "executableEntrypoint": "software.amazon.b2bi.partnership.HandlerWrapperExecutable",
+    "contractSettings": {},
+    "canarySettings": {}
 }

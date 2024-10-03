@@ -31,8 +31,20 @@ import software.amazon.cloudformation.exceptions.CfnServiceLimitExceededExceptio
 import software.amazon.cloudformation.exceptions.CfnThrottlingException
 import java.time.Instant
 import software.amazon.awssdk.services.b2bi.model.EdiType as SdkEdi
+import software.amazon.awssdk.services.b2bi.model.FormatOptions as SdkFormatOptions
+import software.amazon.awssdk.services.b2bi.model.InputConversion as SdkInputConversion
+import software.amazon.awssdk.services.b2bi.model.Mapping as SdkMapping
+import software.amazon.awssdk.services.b2bi.model.OutputConversion as SdkOutputConversion
+import software.amazon.awssdk.services.b2bi.model.SampleDocumentKeys as SdkSampleDocumentKeys
+import software.amazon.awssdk.services.b2bi.model.SampleDocuments as SdkSampleDocuments
 import software.amazon.awssdk.services.b2bi.model.X12Details as SdkX12
 import software.amazon.b2bi.transformer.EdiType as ResourceEdi
+import software.amazon.b2bi.transformer.FormatOptions as ResourceFormatOptions
+import software.amazon.b2bi.transformer.InputConversion as ResourceInputConversion
+import software.amazon.b2bi.transformer.Mapping as ResourceMapping
+import software.amazon.b2bi.transformer.OutputConversion as ResourceOutputConversion
+import software.amazon.b2bi.transformer.SampleDocumentKeys as ResourceSampleDocumentKeys
+import software.amazon.b2bi.transformer.SampleDocuments as ResourceSampleDocuments
 import software.amazon.b2bi.transformer.X12Details as ResourceX12
 
 /**
@@ -54,7 +66,11 @@ object Translator {
             .mappingTemplate(model.mappingTemplate)
             .sampleDocument(model.sampleDocument)
             .tags(model.tags.map { it.toSdkTag() })
-            .ediType(model.ediType.translateToSdkEdi())
+            .ediType(model.ediType?.translateToSdkEdi())
+            .inputConversion(model.inputConversion?.translateToSdkInputConversion())
+            .outputConversion(model.outputConversion?.translateToSdkOutputConversion())
+            .mapping(model.mapping?.translateToSdkMapping())
+            .sampleDocuments(model.sampleDocuments?.translateToSdkSampleDocuments())
             .build()
     }
 
@@ -79,10 +95,14 @@ object Translator {
             .transformerId(response.transformerId().emptyToNull())
             .transformerArn(response.transformerArn().emptyToNull())
             .name(response.name().emptyToNull())
-            .fileFormat(response.fileFormat().emptyToNull())
-            .mappingTemplate(response.mappingTemplate().emptyToNull())
-            .sampleDocument(response.sampleDocument().emptyToNull())
+            .fileFormat(response.fileFormat()?.emptyToNull())
+            .mappingTemplate(response.mappingTemplate()?.emptyToNull())
+            .sampleDocument(response.sampleDocument()?.emptyToNull())
             .ediType(response.ediType()?.translateToResourceEdi())
+            .mapping(response.mapping()?.translateToResourceMapping())
+            .inputConversion(response.inputConversion()?.translateToResourceInputConversion())
+            .outputConversion(response.outputConversion()?.translateToResourceOutputConversion())
+            .sampleDocuments(response.sampleDocuments()?.translateToResourceSampleDocuments())
             .status(response.status().emptyToNull())
             .createdAt(response.createdAt().emptyToNull())
             .modifiedAt(response.modifiedAt().emptyToNull())
@@ -91,11 +111,12 @@ object Translator {
 
     private fun String?.emptyToNull() = if (this.isNullOrEmpty()) null else this
 
-    private fun Instant?.emptyToNull() = if (this == null) null else this.toString()
+    // Contract tests expect the modifiedAt property to at least return an empty string, cannot be null
+    private fun Instant?.emptyToNull() = this?.toString() ?: ""
 
-    private fun FileFormat?.emptyToNull() =  if (this == null) null else this.toString()
+    private fun FileFormat?.emptyToNull() = this?.toString()
 
-    private fun TransformerStatus?.emptyToNull() = if (this == null) null else this.toString()
+    private fun TransformerStatus?.emptyToNull() = this?.toString()
 
     /**
      * Request to delete a resource
@@ -117,10 +138,14 @@ object Translator {
         return UpdateTransformerRequest.builder()
             .transformerId(model.transformerId)
             .name(model.name)
-            .ediType(model.ediType.translateToSdkEdi())
+            .ediType(model.ediType?.translateToSdkEdi())
             .fileFormat(model.fileFormat)
             .mappingTemplate(model.mappingTemplate)
             .sampleDocument(model.sampleDocument)
+            .inputConversion(model.inputConversion?.translateToSdkInputConversion())
+            .outputConversion(model.outputConversion?.translateToSdkOutputConversion())
+            .mapping(model.mapping?.translateToSdkMapping())
+            .sampleDocuments(model.sampleDocuments?.translateToSdkSampleDocuments())
             .status(model.status)
             .build()
     }
@@ -151,6 +176,10 @@ object Translator {
                 .fileFormat(it.fileFormatAsString())
                 .mappingTemplate(it.mappingTemplate())
                 .sampleDocument(it.sampleDocument())
+                .inputConversion(it.inputConversion()?.translateToResourceInputConversion())
+                .outputConversion(it.outputConversion()?.translateToResourceOutputConversion())
+                .mapping(it.mapping()?.translateToResourceMapping())
+                .sampleDocuments(it.sampleDocuments()?.translateToResourceSampleDocuments())
                 .status(it.statusAsString())
                 .createdAt(it.createdAt().toString())
                 .modifiedAt(if (it.modifiedAt() != null) it.modifiedAt().toString() else null)
@@ -189,8 +218,46 @@ object Translator {
     }
 
     fun SdkEdi.translateToResourceEdi(): ResourceEdi {
-        val x12 : ResourceX12 = ResourceX12.builder().transactionSet(this.x12Details().transactionSetAsString()).version(this.x12Details().versionAsString()).build()
+        val x12 = ResourceX12.builder().transactionSet(this.x12Details().transactionSetAsString()).version(this.x12Details().versionAsString()).build()
         return ResourceEdi.builder().x12Details(x12).build()
+    }
+
+    fun ResourceInputConversion.translateToSdkInputConversion(): SdkInputConversion {
+        val x12Details = SdkX12.builder().transactionSet(this.formatOptions.x12.transactionSet).version(this.formatOptions.x12.version).build()
+        return SdkInputConversion.builder().fromFormat(this.fromFormat).formatOptions(SdkFormatOptions.fromX12(x12Details)).build()
+    }
+
+    fun SdkInputConversion.translateToResourceInputConversion(): ResourceInputConversion {
+        val x12 = ResourceX12.builder().transactionSet(this.formatOptions().x12().transactionSetAsString()).version(this.formatOptions().x12().versionAsString()).build()
+        return ResourceInputConversion.builder().fromFormat(this.fromFormatAsString()).formatOptions(ResourceFormatOptions.builder().x12(x12).build()).build()
+    }
+
+    fun ResourceOutputConversion.translateToSdkOutputConversion(): SdkOutputConversion {
+        val x12Details = SdkX12.builder().transactionSet(this.formatOptions.x12.transactionSet).version(this.formatOptions.x12.version).build()
+        return SdkOutputConversion.builder().toFormat(this.toFormat).formatOptions(SdkFormatOptions.fromX12(x12Details)).build()
+    }
+
+    fun SdkOutputConversion.translateToResourceOutputConversion(): ResourceOutputConversion {
+        val x12 = ResourceX12.builder().transactionSet(this.formatOptions().x12().transactionSetAsString()).version(this.formatOptions().x12().versionAsString()).build()
+        return ResourceOutputConversion.builder().toFormat(this.toFormatAsString()).formatOptions(ResourceFormatOptions.builder().x12(x12).build()).build()
+    }
+
+    fun ResourceSampleDocuments.translateToSdkSampleDocuments(): SdkSampleDocuments {
+        val keys = SdkSampleDocumentKeys.builder().input(this.keys[0].input).output(this.keys[0].output).build()
+        return SdkSampleDocuments.builder().bucketName(this.bucketName).keys(keys).build()
+    }
+
+    fun SdkSampleDocuments.translateToResourceSampleDocuments(): ResourceSampleDocuments {
+        val keys = ResourceSampleDocumentKeys.builder().input(this.keys().first().input()).output(this.keys().first().output()).build()
+        return ResourceSampleDocuments.builder().bucketName(this.bucketName()).keys(listOf(keys)).build()
+    }
+
+    fun ResourceMapping.translateToSdkMapping(): SdkMapping {
+        return SdkMapping.builder().templateLanguage(this.templateLanguage).template(this.template).build()
+    }
+
+    fun SdkMapping.translateToResourceMapping(): ResourceMapping {
+        return ResourceMapping.builder().templateLanguage(this.templateLanguageAsString()).template(this.template()).build()
     }
 
     fun AwsServiceException.toCfnException(): BaseHandlerException = when (this) {
