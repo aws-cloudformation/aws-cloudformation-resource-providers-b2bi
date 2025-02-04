@@ -1,7 +1,9 @@
 package software.amazon.b2bi.transformer
 
+import software.amazon.awssdk.awscore.exception.AwsServiceException
 import software.amazon.awssdk.services.b2bi.B2BiClient
 import software.amazon.awssdk.services.b2bi.model.ListTagsForResourceRequest
+import software.amazon.b2bi.transformer.Translator.toCfnException
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy
 import software.amazon.cloudformation.proxy.Logger
 import software.amazon.cloudformation.proxy.ProgressEvent
@@ -112,7 +114,11 @@ object TagHelper {
             proxy.initiate(TAG_OPERATION, proxyClient, resourceModel, callbackContext)
                 .translateToServiceRequest { model -> Translator.translateToTagResourceRequest(model, addedTags) }
                 .makeServiceCall { request, client ->
-                    val response = proxy.injectCredentialsAndInvokeV2(request, client.client()::tagResource)
+                    val response = try {
+                        proxy.injectCredentialsAndInvokeV2(request, client.client()::tagResource)
+                    } catch (e: AwsServiceException) {
+                        throw e.toCfnException()
+                    }
                     logger.log("Successfully tagged ${ResourceModel.TYPE_NAME} ${resourceModel.transformerId}")
                     response
                 }
@@ -139,7 +145,11 @@ object TagHelper {
             proxy.initiate(UNTAG_OPERATION, proxyClient, resourceModel, callbackContext)
                 .translateToServiceRequest { model -> Translator.translateToUntagResourceRequest(model, removedTags) }
                 .makeServiceCall { request, client ->
-                    val response = proxy.injectCredentialsAndInvokeV2(request, client.client()::untagResource)
+                    val response = try {
+                        proxy.injectCredentialsAndInvokeV2(request, client.client()::untagResource)
+                    } catch (e: AwsServiceException) {
+                        throw e.toCfnException()
+                    }
                     logger.log("Successfully untagged ${ResourceModel.TYPE_NAME} ${resourceModel.transformerId}")
                     response
                 }
@@ -161,7 +171,11 @@ object TagHelper {
         val request = ListTagsForResourceRequest.builder()
             .resourceARN(resourceArn)
             .build()
-        val response = proxyClient.injectCredentialsAndInvokeV2(request, proxyClient.client()::listTagsForResource)
+        val response = try {
+            proxyClient.injectCredentialsAndInvokeV2(request, proxyClient.client()::listTagsForResource)
+        } catch (e: AwsServiceException) {
+            throw e.toCfnException()
+        }
         return response.tags().map { it.toResourceTag() }
     }
 
